@@ -1,26 +1,37 @@
 {
   "name": "youtube-email-notifier",
   "version": "1.0.0",
-  "type": "module",
-  "description": "",
+  "author": "Kasper Henningsen (https://kasper.space)",
   "main": "index.js",
+  "bin": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compile": "pkg . --target macos --output dist/youtube-email-notifier-bin-macos",
+    "build": "pkg . --target macos --output dist/youtube-email-notifier-bin-macos && pakager",
+    "pack": "pakager"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/probablykasper/youtube-email-notifier.git"
+  "pakager": {
+    "realName": "YouTube Email Notifier",
+    "appId": "space.kasper.youtube-email-notifier",
+    "outputDir": "dist",
+    "backgroundApp": true,
+    "mac": {
+      "binary": "dist/youtube-email-notifier-bin-macos",
+      "category": "public.app-category.utilities",
+      "icon": "assets/logo.png",
+      "formats": [
+        "app"
+      ],
+      "customInfo": {}
+    }
   },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/probablykasper/youtube-email-notifier/issues"
-  },
-  "homepage": "https://github.com/probablykasper/youtube-email-notifier#readme",
   "dependencies": {
     "eslint": "^7.7.0",
     "get-port": "^5.1.1",
-    "open": "^7.1.0",
+    "openurl": "^1.1.1",
     "systray": "^1.0.5"
+  },
+  "devDependencies": {
+    "pakager": "file:../pakager",
+    "pkg": "^4.4.9"
   }
 }
