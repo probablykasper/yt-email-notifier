@@ -17,7 +17,7 @@ ws.onopen = () => {
 
   console.log('WS open')
 
-  if (location.has !== '') {
+  if (location.hash !== '') {
     const hash = location.hash.substr(1)
     const pairs = hash.split('&')
     const hashObj = {}

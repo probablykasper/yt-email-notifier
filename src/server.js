@@ -64,18 +64,15 @@ wss.on('connection', (ws) => {
 })
 
 
-function isOpen() {
-  return server.listening
-}
-module.exports.isOpen = isOpen
+let isOpen = false
 const port = 9199
 
 module.exports.open = async () => {
-  if (isOpen()) return
+  if (isOpen) return
   server.listen(port, err => {
     if (err) return console.log('ERROR OPENING SERVER')
     console.log('Server listening on port', port)
-    module.exports.isOpen = false
+    isOpen = true
   })
 }
 
