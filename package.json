@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/probablykasper/youtube-email-notifier#readme",
   "dependencies": {
+    "eslint": "^7.7.0",
     "get-port": "^5.1.1",
     "open": "^7.1.0",
     "systray": "^1.0.5"
