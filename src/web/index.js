@@ -4,7 +4,8 @@ document.querySelector('.connect-yt-account').addEventListener('click', () => {
   +'?scope='+encodeURIComponent('https://www.googleapis.com/auth/youtube.readonly')
   +'&client_id='+encodeURIComponent('360374944795-g9e4g54m6chuvees28r3s10bqgg24cnk.apps.googleusercontent.com')
   +'&redirect_uri='+encodeURI('http://localhost:9199')
-  +'&response_type=token'
+  +'&response_type=code'
+  +'&access_type=offline'
   +'&prompt=consent'
   +'&state='+new Date().getTime()
 
