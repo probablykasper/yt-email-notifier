@@ -63,15 +63,14 @@ items.push({
 })
 
 const systray = new SysTray({
-	menu: {
-		// you should using .png icon in macOS/Linux, but .ico format in windows
-		icon: "icon.png",
-		title: "Y",
-		tooltip: "Tips",
-		items: items
-	},
-	debug: false,
-	copyDir: true, // copy go tray binary to outside directory, useful for packing tool like pkg.
+  menu: {
+    icon: './assets/logo.png', // icon not working for some reason
+    title: 'Y',
+    tooltip: 'Tips',
+    items: items
+  },
+  debug: false,
+  copyDir: true, // copy go tray binary to outside directory, useful for packing tool like pkg.
 })
 
 systray.onClick(action => {
