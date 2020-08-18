@@ -2,5 +2,5 @@ const menubar = require('./src/menubar.js')
 
 console.log('Hello World')
 
-const openSettingsNow = true
-menubar.init(openSettingsNow)
+const openServerNow = true
+menubar.init(openServerNow)

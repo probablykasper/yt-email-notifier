@@ -4,11 +4,11 @@ const openurl = require('openurl')
 
 const server = require('./server.js')
 
-module.exports.init = async function(openSettingsNow) {
+module.exports.init = async function(openServerNow) {
 
-  if (openSettingsNow === true) {
-    const port = await server.open()
-    openurl.open('http://localhost:'+port)
+  if (openServerNow === true) {
+    await server.open()
+    // openurl.open('http://localhost:9199')
   }
 
   const items = [
@@ -18,8 +18,8 @@ module.exports.init = async function(openSettingsNow) {
       checked: false,
       enabled: true,
       handler: async () => {
-        const port = await server.open()
-        openurl.open('http://localhost:'+port)
+        await server.open()
+        openurl.open('http://localhost:9199')
       },
     },
     {
@@ -29,7 +29,6 @@ module.exports.init = async function(openSettingsNow) {
       enabled: true,
       handler: (systray) => {
         systray.kill()
-        // closeServer()
       },
     },
   ]
