@@ -1,10 +1,85 @@
 <html>
-  <head>
-    <title>YouTube Email Notifier</title>
-  </head>
-  <body>
-    <button class='connect-yt-account'>Connect a YouTube account</button>
-    <script src="./index.js"></script>
-    <script src="https://apis.google.com/js/api.js"></script>
+
+<head>
+  <title>YouTube Email Notifier</title>
+  <link rel='stylesheet' href="./bulma.min.css">
+</link>
+</head>
+
+<body>
+  <div id='app'></div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+  <script src="./index.js"></script>
+  <script id="app-template" type="text/x-handlebars-template">
+    <div>
+      <section class="hero is-primary">
+        <div class="hero-body">
+          <div class="container">
+            <h1 class="title">
+              YouTube Email Notifier
+            </h1>
+          </div>
+        </div>
+      </section>
+      <div class="container">
+        <section class="section pt-5">
+          <div class="buttons field">
+            <button id='add-channels' class='button is-link'>Add channels</button>
+            <button class="button is-success">Save Changes</button>
+          </div>
+          <div class="columns">
+            <div class="column">
+              <table class="table is-fullwidth">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th>Channel</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each channels}}
+                  <tr>
+                    <td><a class="delete"></a></td>
+                    <td>{{this}}</td>
+                  </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
+            <div class="column is-one-third is-right ml-5">
+              <aside class="menu">
+                <p class="menu-label">Emails</p>
+                <ul class="menu-list">
+                  {{#each emails}}
+                  <li><a>{{this}}</a></li>
+                  {{/each}}
+                </ul>
+                <p class="menu-label">Actions</p>
+                <ul class="menu-list">
+                  <li>
+                    <a onclick="$('#new-email-modal').toggleClass('is-active')">
+                      New email
+                    </a>
+                  </li>
+                  <div id='new-email-modal' class="modal">
+                    <div class="modal-background" onclick="$('#new-email-modal').toggleClass('is-active')"></div>
+                    <div class="modal-content box px-6 py-5">
+                      <h1 class='is-size-4'><b>New email</b></h1>
+                      <input id='new-email-input' class="input my-5" type="text" placeholder="Email">
+                      <div class="button is-success" onclick="newEmail($('#new-email-input').val())">Create</div>
+                      <div class="button" onclick="$('#new-email-modal').toggleClass('is-active')">Cancel</div>
+                    </div>
+                    <button class="modal-close is-large" aria-label="close"></button>
+                  </div>
+                </ul>
+              </aside>
+            </div>
+          </div>
+        </section>
+      </div>
+    </script>
   </body>
-</html>
+  
+  </html>
+  
