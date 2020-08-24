@@ -1,14 +1,14 @@
 const SysTrayModule = require('systray')
 const SysTray = SysTrayModule.default
-const openurl = require('openurl')
+const opener = require('opener')
 
 const server = require('./server.js')
 
-module.exports.init = async function(openServerNow) {
+module.exports.init = async function(options = {}) {
 
-  if (openServerNow === true) {
+  if (options.openServerNow) {
     await server.open()
-    // openurl.open('http://localhost:9199')
+    if (options.openBrowserNow) opener('http://localhost:9199')
   }
 
   const items = [
@@ -19,7 +19,7 @@ module.exports.init = async function(openServerNow) {
       enabled: true,
       handler: async () => {
         await server.open()
-        openurl.open('http://localhost:9199')
+        opener('http://localhost:9199')
       },
     },
     {
@@ -38,7 +38,7 @@ module.exports.init = async function(openServerNow) {
       // you should using .png icon in macOS/Linux, but .ico format in windows
       icon: 'icon.png',
       title: 'ϟϟ',
-      items: items
+      items: items,
     },
     debug: false,
     copyDir: true, // copy go tray binary to outside directory, useful for packing tool like pkg.

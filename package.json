@@ -2,20 +2,23 @@
   "name": "youtube-email-notifier",
   "version": "1.0.0",
   "author": "Kasper Henningsen (https://kasper.space)",
-  "main": "index.js",
-  "bin": "index.js",
+  "main": "main.js",
+  "bin": "main.js",
   "scripts": {
-    "compile": "pkg . --target macos --output dist/youtube-email-notifier-bin-macos",
-    "build": "pkg . --target macos --output dist/youtube-email-notifier-bin-macos && pakager",
-    "pack": "pakager"
+    "lint": "eslint --ext .js --ignore-path .eslintignore .",
+    "lint-fix": "eslint --ext .js --ignore-path .eslintignore . --fix",
+    "start": "node main.js",
+    "compile": "pkg . --target macos --output dist/youtube-email-notifier",
+    "build": "pkg . --target macos --output dist/youtube-email-notifier && embler",
+    "pack": "embler"
   },
-  "pakager": {
+  "embler": {
     "realName": "YouTube Email Notifier",
     "appId": "space.kasper.youtube-email-notifier",
     "outputDir": "dist",
     "backgroundApp": true,
     "mac": {
-      "binary": "dist/youtube-email-notifier-bin-macos",
+      "binary": "dist/youtube-email-notifier",
       "category": "public.app-category.utilities",
       "icon": "assets/logo.png",
       "formats": [
@@ -27,15 +30,15 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "connect": "^3.7.0",
+    "embler": "^1.0.0",
     "eslint": "^7.7.0",
     "node-fetch": "^2.6.0",
-    "openurl": "^1.1.1",
+    "opener": "^1.5.1",
     "serve-static": "^1.14.1",
     "systray": "^1.0.5",
     "ws": "^7.3.1"
   },
   "devDependencies": {
-    "pakager": "file:../pakager",
     "pkg": "^4.4.9"
   }
 }

@@ -1,42 +1,51 @@
+const $ = window.$
+
 const ws = new WebSocket('ws://localhost:9198')
 
-
 ws.onopen = () => {
-
   console.log('WS open')
-
 }
 
 ws.onerror = (err) => {
-  console.log(err)
+  $('#offline-modal').addClass('is-active')
+}
+ws.onclose = () => {
+  $('#offline-modal').addClass('is-active')
 }
 
-let store
-function storeUpdate() {
-  ws.send(JSON.stringify({ type: 'storeUpdate', data: store }))
-}
-
-function render() {
+function render(store) {
   const source = document.getElementById('app-template').innerHTML
   const template = window.Handlebars.compile(source)
   const html = template(store)
   document.getElementById('app').innerHTML = html
 
-  // document.getElementById('add-channels').addEventListener('click', () => {
-    
-  // })
+  const datetime = $('#new-email-datetime')
+  datetime.val(new Date().toLocaleString())
+  $('#new-email-form').submit((e) => {
+    e.preventDefault()
+    const time = Date.parse(datetime.val())
+    if (!time) return alert('Invalid date/time')
+    window.a('newEmail', {
+      email: $('#new-email-input').val(),
+      timeLastSynced: time,
+    })
+    $('#new-email-modal').removeClass('is-active')
+    return false
+  })
 }
-function newEmail(input) {
-  store.emails.push(input)
-  storeUpdate()
+
+window.a = function(type, data) {
+  const msg = {
+    type: type, data: data,
+  }
+  ws.send(JSON.stringify(msg))
 }
 
 ws.onmessage = (e) => {
   const { type, data } = JSON.parse(e.data)
 
-  if (type === 'initStore') {
+  if (type === 'newStore') {
     console.log(data)
-    store = data
     render(data)
   }
 
