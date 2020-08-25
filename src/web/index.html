@@ -10,8 +10,31 @@
   <div id='app'>
   </div>
 
+  <div id='new-email-modal' class="modal">
+    <div class="modal-background" onclick="$('#new-email-modal').removeClass('is-active')"></div>
+    <div class="modal-content box px-6 py-5">
+      <form id='new-email-form'>
+        <h1 class='is-size-4'><b>New email</b></h1>
+        <input id='new-email-input' class="input my-5" type="email" placeholder="Email" required>
+        <label class='label'>Check for videos uploaded after this time:</label>
+        <input id='new-email-datetime' class="input mb-5" type="text" placeholder="2020-02-02 22:55">
+        <button type="submit" class="button is-success">Create</button>
+        <div class="button" onclick="$('#new-email-modal').removeClass('is-active')">Cancel</div>
+      </form>
+    </div>
+  </div>
+
+  <div id='error-modal' class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content box px-6 py-5">
+      <h1 class='is-size-4'><b>Error</b></h1>
+      <pre class='mb-5'></pre>
+      <div class='button' onclick="$('#error-modal').removeClass('is-active')">OK</div>
+    </div>
+  </div>
+
   <div id='offline-modal' class="modal">
-    <div class="modal-background" onclick="$('#new-email-modal').toggleClass('is-active')"></div>
+    <div class="modal-background"></div>
     <div class="modal-content box px-6 py-5">
       <h1 class='is-size-4'><b>No connection with app</b></h1>
       <p>Try reloading or opening up the settings again</p>
@@ -22,6 +45,40 @@
   <script src="./lib/handlebars.js"></script>
   <script src="./index.js"></script>
   <script id="app-template" type="text/x-handlebars-template">
+
+    <div id='add-channel-modal' class="modal">
+      <div class="modal-background" onclick="$('#add-channel-modal').removeClass('is-active')"></div>
+      <div class="modal-content box px-6 py-5">
+        <form id='add-channel-form'>
+          <h1 class='title is-size-4'><b>Add channel</b></h1>
+          <label class='label'>Email:</label>
+          <div id="add-channel-select-instance" class="select mb-3">
+            <select>
+              {{#each instances}}
+                <option value={{@index}}>{{this.email}}</option>
+              {{/each}}
+            </select>
+          </div>
+          <label class='label'>Channel URL</label>
+          <input id='add-cannel-input' class='input mb-5' type='url' placeholder='https://www.youtube.com/channel/UCQpQGT51tQbDQztiEH6hBcQ' required>
+          <button type="submit" class="button is-success">Add</button>
+          <div class="button" onclick="$('#add-channel-modal').removeClass('is-active')">Cancel</div>
+        </form>
+      </div>
+    </div>
+
+    <div id='api-key-modal' class="modal">
+      <div class="modal-background" onclick="$('#api-key-modal').removeClass('is-active')"></div>
+      <div class="modal-content box px-6 py-5">
+        <form id='api-key-form'>
+          <h1 class='title is-size-4'><b>Set API key</b></h1>
+          <input id='api-key-input' class="input mb-5" value="{{apiKey}}" placeholder="AIzaSyAtvLCpmfVPTVNu1xxzBKcR3T28YWm0JXc" required>
+          <button type="submit" class="button is-success">Save</button>
+          <div class="button" onclick="$('#api-key-modal').removeClass('is-active')">Cancel</div>
+        </form>
+      </div>
+    </div>
+
     <section class="hero is-primary mb-2">
       <div class="hero-body">
         <div class="container">
@@ -36,7 +93,9 @@
     <div class="container">
       <section class="section py-3">
         <div class="buttons field">
-          <button class='button is-primary' onclick="$('#new-email-modal').toggleClass('is-active')">Add email</button>
+          <button class='button' onclick="$('#api-key-modal').addClass('is-active')">API key</button>
+          <button class='button is-primary' onclick="$('#new-email-modal').addClass('is-active')">Add email</button>
+          <button class='button is-link' onclick="$('#add-channel-modal').addClass('is-active')">Add channel</button>
         </div>
       </section>
       <section class="section">
@@ -61,62 +120,12 @@
               {{/each}}
             </tbody>
           </table>
-          <div class="buttons field">
-            <button id='add-channels' class='button is-small is-link'>Add channels</button>
-          </div>
           <br>
           <br>
           <br>
         {{/each}}
-          <!-- <div class="column card px-6 py-6">
-            <div class="buttons field">
-              <button id='add-channels' class='button is-small is-link'>Add channels</button>
-            </div>
-            <table class="table is-fullwidth">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Channel</th>
-                </tr>
-              </thead>
-              <tbody>
-                {{#each channels}}
-                <tr>
-                  <td><a class="delete"></a></td>
-                  <td>{{this}}</td>
-                </tr>
-                {{/each}}
-              </tbody>
-            </table>
-          </div> -->
-          <!-- <div class="column is-one-third is-right ml-5">
-            <aside class="menu">
-              <p class="menu-label">Emails</p>
-              <ul class="menu-list">
-                {{#each instances}}
-                  <li><a class="level-item">{{this.email}}</a></li>
-                {{/each}}
-              </ul>
-              <p class="menu-label">Actions</p>
-            </aside>
-          </div> -->
       </section>
     </div>
-
-    <div id='new-email-modal' class="modal">
-      <div class="modal-background" onclick="$('#new-email-modal').toggleClass('is-active')"></div>
-      <div class="modal-content box px-6 py-5">
-        <form id='new-email-form'>
-          <h1 class='is-size-4'><b>New email</b></h1>
-          <input id='new-email-input' class="input my-5" type="email" placeholder="Email" required>
-          <p>Check for videos uploaded after this time:</p>
-          <input id='new-email-datetime' class="input my-5" type="text" placeholder="2020-02-02 22:55">
-          <button type="submit" class="button is-success" id="create-email-button"">Create</button>
-          <div class="button" onclick="$('#new-email-modal').toggleClass('is-active')">Cancel</div>
-        </form>
-      </div>
-    </div>
-
   </script>
 </body>
 
