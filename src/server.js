@@ -1,48 +1,55 @@
 const http = require('http')
+const fs = require('fs')
 const connect = require('connect')
 const serveStatic = require('serve-static')
 const WebSocket = require('ws')
 const fetch = require('node-fetch')
+const paths = require('./paths.js')
 
 const app = connect()
 app.use(serveStatic('src/web'))
 let server
 
-let store = {
-  apiKey: '',
-  instances: [
-    {
-      email: 'test@example.com',
-      lastSyncedAt: 1597870637076,
-      minutesBetweenRefreshes: 60,
-      channels: [],
-    },
-    {
-      email: 'test2@example.com',
-      lastSyncedAt: 1597870637076,
-      minutesBetweenRefreshes: 60*5,
-      channels: [
-        {
-          icon: '',
-          id: '',
-          uploadsPlaylistId: '',
-          name: 'Monstercat',
-        },
-        {
-          icon: '',
-          id: '',
-          uploadsPlaylistId: '',
-          name: 'Bass Nation',
-        },
-        {
-          icon: '',
-          id: '',
-          uploadsPlaylistId: '',
-          name: 'Valiant',
-        },
-      ],
-    },
-  ],
+let store
+if (fs.existsSync(paths.settings)) {
+  store = JSON.parse(fs.readFileSync(paths.settings, 'utf8'))
+} else {
+  store = {
+    apiKey: '',
+    instances: [
+      {
+        email: 'test@example.com',
+        lastSyncedAt: 1597870637076,
+        minutesBetweenRefreshes: 60,
+        channels: [],
+      },
+      {
+        email: 'test2@example.com',
+        lastSyncedAt: 1597870637076,
+        minutesBetweenRefreshes: 60*5,
+        channels: [
+          {
+            icon: '',
+            id: '',
+            uploadsPlaylistId: '',
+            name: 'Monstercat',
+          },
+          {
+            icon: '',
+            id: '',
+            uploadsPlaylistId: '',
+            name: 'Bass Nation',
+          },
+          {
+            icon: '',
+            id: '',
+            uploadsPlaylistId: '',
+            name: 'Valiant',
+          },
+        ],
+      },
+    ],
+  }
 }
 
 async function fetchYT(options) {
@@ -64,17 +71,13 @@ async function fetchYT(options) {
 const wss = new WebSocket.Server({ noServer: true })
 let connection = null
 
-function sendAll(type, data) {
-  wss.clients.forEach(function each(ws) {
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ type, data }))
-    }
-  })
-}
-
 wss.on('connection', async (ws) => {
   function send(type, data) {
     ws.send(JSON.stringify({ type, data }))
+  }
+  function storeUpdate() {
+    fs.writeFileSync(paths.settings, JSON.stringify(store, null, '  '))
+    send('newStore', store)
   }
 
   if (connection) {
@@ -105,13 +108,13 @@ wss.on('connection', async (ws) => {
     try {
       if (type === 'setApiKey') {
         store.apiKey = data.key
-        sendAll('newStore', store)
+        storeUpdate()
 
       } else if (type === 'newEmail') {
         if (!data.channels) data.channels = []
         if (!data.lastSyncedAt) data.lastSyncedAt = new Date().getTime()
         store.instances.push(data)
-        sendAll('newStore', store)
+        storeUpdate()
 
       } else if (type === 'addChannel') {
         const segments = data.channel.split('/')
@@ -142,7 +145,7 @@ wss.on('connection', async (ws) => {
           uploadsPlaylistId: channelObject.contentDetails.relatedPlaylists.uploads,
           addedAt: new Date().getTime(),
         })
-        sendAll('newStore', store)
+        storeUpdate()
       }
     } catch(err) {
       console.log(':::err:::')

@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint --ext .js --ignore-path .eslintignore .",
     "lint-fix": "eslint --ext .js --ignore-path .eslintignore . --fix",
-    "start": "node main.js",
+    "start": "APP_ENV=dev node main.js",
     "compile": "pkg . --target macos --output dist/youtube-email-notifier",
     "build": "pkg . --target macos --output dist/youtube-email-notifier && embler",
     "pack": "embler"
