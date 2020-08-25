@@ -68,7 +68,7 @@ let store = {
   ],
 }
 
-const wss = new WebSocket.Server({ port: 9198 })
+const wss = new WebSocket.Server({ noServer: true })
 let connection = false
 
 wss.on('connection', (ws) => {
@@ -81,7 +81,7 @@ wss.on('connection', (ws) => {
       if (!connection) module.exports.close()
     }, 5000)
   })
-  console.log('WS open')
+  console.log('WS Open')
 
   function send(type, data) {
     ws.send(JSON.stringify({ type, data }))
@@ -114,10 +114,19 @@ module.exports.open = async () => {
     console.log('Server listening on http://localhost:'+port)
     isOpen = true
   })
+  server.on('upgrade', function upgrade(request, socket, head) {
+    wss.handleUpgrade(request, socket, head, function done(ws) {
+      wss.emit('connection', ws, request)
+    })
+  })
 }
 
 module.exports.close = async () => {
-  console.log('Closing server')
-  server.close()
-  module.exports.isOpen = false
+  if (isOpen) {
+    console.log('Closing server')
+    server.close()
+    isOpen = false
+  } else {
+    console.log('Server close called, but is already closed')
+  }
 }

@@ -1,15 +1,17 @@
 const $ = window.$
 
-const ws = new WebSocket('ws://localhost:9198')
+const ws = new WebSocket('ws://localhost:9199/ws')
 
 ws.onopen = () => {
   console.log('WS open')
 }
 
 ws.onerror = (err) => {
+  console.log('ws ERR')
   $('#offline-modal').addClass('is-active')
 }
 ws.onclose = () => {
+  console.log('ws Close')
   $('#offline-modal').addClass('is-active')
 }
 
