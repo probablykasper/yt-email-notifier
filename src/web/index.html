@@ -8,7 +8,6 @@
 
 <body>
   <div id='app'>
-    <p>The settings page can only be opened in one place.</p>
   </div>
 
   <div id='offline-modal' class="modal">
@@ -30,15 +29,46 @@
             <h1 class="title mb-0">
               YouTube Email Notifier
             </h1>
-            <button class="button">Save Changes</button>
           </div>
         </div>
       </div>
     </section>
     <div class="container">
+      <section class="section py-3">
+        <div class="buttons field">
+          <button class='button is-primary' onclick="$('#new-email-modal').toggleClass('is-active')">Add email</button>
+        </div>
+      </section>
       <section class="section">
-        <div class="columns">
-          <div class="column card px-6 py-6">
+        {{#each instances}}
+          <h2 class="title is-3">{{this.email}}</h2>
+          <p>Minutes between refreshes: {{this.minutesBetweenRefreshes}}</p>
+          <p>Check for videos after (Time last synced): {{this.timeLastSynced}}</p>
+          <br>
+          <table class="table is-fullwidth mb-3">
+            <thead>
+              <tr>
+                <th>Channel</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each channels}}
+              <tr>
+                <td>{{this.name}}</td>
+                <td><a class="edit">Edit</a></td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+          <div class="buttons field">
+            <button id='add-channels' class='button is-small is-link'>Add channels</button>
+          </div>
+          <br>
+          <br>
+          <br>
+        {{/each}}
+          <!-- <div class="column card px-6 py-6">
             <div class="buttons field">
               <button id='add-channels' class='button is-small is-link'>Add channels</button>
             </div>
@@ -58,31 +88,18 @@
                 {{/each}}
               </tbody>
             </table>
-          </div>
-          <div class="column is-one-third is-right ml-5">
+          </div> -->
+          <!-- <div class="column is-one-third is-right ml-5">
             <aside class="menu">
               <p class="menu-label">Emails</p>
               <ul class="menu-list">
-                {{#each emails}}
-                  <li><a class="level-item">{{this}}</a></li>
+                {{#each instances}}
+                  <li><a class="level-item">{{this.email}}</a></li>
                 {{/each}}
               </ul>
               <p class="menu-label">Actions</p>
-              <ul class="menu-list">
-                <li>
-                  <a onclick="$('#new-email-modal').toggleClass('is-active')">
-                    New email
-                  </a>
-                </li>
-                <li>
-                  <a onclick="$('#new-email-modal').toggleClass('is-active')">
-                    Delete email
-                  </a>
-                </li>
-              </ul>
             </aside>
-          </div>
-        </div>
+          </div> -->
       </section>
     </div>
 
@@ -99,6 +116,7 @@
         </form>
       </div>
     </div>
+
   </script>
 </body>
 

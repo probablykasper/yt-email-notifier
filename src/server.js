@@ -35,10 +35,14 @@ let store = {
       channels: [
         {
           icon: '',
+          id: '',
+          uploadsPlaylistId: '',
           name: 'Linus Tech Tips',
         },
         {
           icon: '',
+          id: '',
+          uploadsPlaylistId: '',
           name: 'Half as Interesting',
         },
       ],
@@ -49,19 +53,21 @@ let store = {
       channels: [
         {
           icon: '',
+          id: '',
+          uploadsPlaylistId: '',
           name: 'Monstercat',
         },
         {
           icon: '',
+          id: '',
+          uploadsPlaylistId: '',
           name: 'Bass Nation',
         },
         {
           icon: '',
-          name: 'Bass Nation',
-        },
-        {
-          icon: '',
-          name: 'Bass Nation',
+          id: '',
+          uploadsPlaylistId: '',
+          name: 'Valiant',
         },
       ],
     },
@@ -69,25 +75,26 @@ let store = {
 }
 
 const wss = new WebSocket.Server({ noServer: true })
-let connection = false
+let connections = 0
 
 wss.on('connection', (ws) => {
-  if (connection === true) return ws.close()
-  connection = true
-  ws.on('close', () => {
-    console.log('WS Close')
-    connection = false
-    setTimeout(() => {
-      if (!connection) module.exports.close()
-    }, 5000)
-  })
-  console.log('WS Open')
+  connections += 1
+  console.log(`WS Open (${connections} now open)`)
+  send('newStore', store)
 
   function send(type, data) {
     ws.send(JSON.stringify({ type, data }))
   }
 
-  send('newStore', store)
+  ws.on('close', () => {
+    connections -= 1
+    console.log(`WS Close (${connections} now open)`)
+    if (!connections) {
+      setTimeout(() => {
+        if (!connections) module.exports.close()
+      }, 5000)
+    }
+  })
 
   ws.on('message', async (msg) => {
     const { type, data } = JSON.parse(msg)

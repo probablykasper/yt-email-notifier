@@ -15,10 +15,10 @@ ws.onclose = () => {
   $('#offline-modal').addClass('is-active')
 }
 
-function render(store) {
+function render(data) {
   const source = document.getElementById('app-template').innerHTML
   const template = window.Handlebars.compile(source)
-  const html = template(store)
+  const html = template(data)
   document.getElementById('app').innerHTML = html
 
   const datetime = $('#new-email-datetime')
