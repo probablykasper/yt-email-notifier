@@ -40,7 +40,7 @@ function render(data) {
     if (!time) return alert('Invalid date/time')
     window.a('newEmail', {
       email: $('#new-email-input').val(),
-      timeLastSynced: time,
+      lastSyncedAt: time,
     })
     $('#new-email-modal').removeClass('is-active')
     return false

@@ -8,49 +8,19 @@ const app = connect()
 app.use(serveStatic('src/web'))
 let server
 
-async function fetchYT(options) {
-  let url = options.url
-  if (options.query) {
-    url += '?'
-    for (const key in options.query) {
-      url += key+'='+options.query[key]+'&'
-    }
-  }
-  if (!options.headers) options.headers = {}
-  // if (user.tokenType === 'Bearer') {
-  //   options.headers.Authorization = 'Bearer '+user.accessToken
-  // }
-  const res = await fetch(url, options)
-  const json = await res.json()
-  if (json.error) throw json.error
-  return json
-}
-
 let store = {
   apiKey: '',
   instances: [
     {
       email: 'test@example.com',
-      timeLastSynced: 1597870637076,
+      lastSyncedAt: 1597870637076,
       minutesBetweenRefreshes: 60,
-      channels: [
-        {
-          icon: '',
-          id: '',
-          uploadsPlaylistId: '',
-          name: 'Linus Tech Tips',
-        },
-        {
-          icon: '',
-          id: '',
-          uploadsPlaylistId: '',
-          name: 'Half as Interesting',
-        },
-      ],
+      channels: [],
     },
     {
       email: 'test2@example.com',
-      timeLastSynced: 1597870637076,
+      lastSyncedAt: 1597870637076,
+      minutesBetweenRefreshes: 60*5,
       channels: [
         {
           icon: '',
@@ -75,8 +45,24 @@ let store = {
   ],
 }
 
+async function fetchYT(options) {
+  let url = options.url
+  if (!options.query) options.query = { key: store.apiKey }
+  if (options.query) {
+    url += '?'
+    for (const key in options.query) {
+      url += key+'='+options.query[key]+'&'
+    }
+  }
+  if (!options.headers) options.headers = {}
+  const res = await fetch(url, options)
+  const json = await res.json()
+  if (json.error) throw json.error
+  return json
+}
+
 const wss = new WebSocket.Server({ noServer: true })
-let connections = 0
+let connection = null
 
 function sendAll(type, data) {
   wss.clients.forEach(function each(ws) {
@@ -86,21 +72,28 @@ function sendAll(type, data) {
   })
 }
 
-wss.on('connection', (ws) => {
+wss.on('connection', async (ws) => {
   function send(type, data) {
     ws.send(JSON.stringify({ type, data }))
   }
 
-  connections += 1
-  console.log(`WS Open (${connections} now open)`)
+  if (connection) {
+    connection.close(1000, 'old connection')
+  }
+  connection = ws
+  console.log('WS Open')
   send('newStore', store)
 
-  ws.on('close', () => {
-    connections -= 1
-    console.log(`WS Close (${connections} now open)`)
-    if (!connections) {
+  ws.on('close', (code, reason) => {
+    if (reason === 'old connection') {
+      console.log('WS Close old connection')
+    } else {
+      console.log('WS Close')
       setTimeout(() => {
-        if (!connections) module.exports.close()
+        if (connection === null) {
+          module.exports.close()
+          connection = null
+        }
       }, 5000)
     }
   })
@@ -116,7 +109,7 @@ wss.on('connection', (ws) => {
 
       } else if (type === 'newEmail') {
         if (!data.channels) data.channels = []
-        if (!data.timeLastSynced) data.timeLastSynced = new Date().getTime()
+        if (!data.lastSyncedAt) data.lastSyncedAt = new Date().getTime()
         store.instances.push(data)
         sendAll('newStore', store)
 
@@ -134,7 +127,6 @@ wss.on('connection', (ws) => {
           const username = segments[usernameSegment]
           query.forUsername = username
         } else {
-          console.log('unknown', data.channel)
           throw new Error(`Can't deal with url '${data.channel}'. The url should have /channel/ or /user/ in it.`)
         }
         const result = await fetchYT({
@@ -148,6 +140,7 @@ wss.on('connection', (ws) => {
           name: channelObject.snippet.title,
           icon: channelObject.snippet.thumbnails.medium.url,
           uploadsPlaylistId: channelObject.contentDetails.relatedPlaylists.uploads,
+          addedAt: new Date().getTime(),
         })
         sendAll('newStore', store)
       }
