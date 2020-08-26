@@ -1,8 +1,12 @@
-const menubar = require('./src/menubar.js')
+const logger = require('./src/logger.js')
 
-console.log('Hello World')
+try {
+  const menubar = require('./src/menubar.js')
 
-menubar.init({
-  openServerNow: true,
-  openBrowserNow: false,
-})
+  menubar.init({
+    openServerNow: true,
+    openBrowserNow: false,
+  })
+} catch(err) {
+  logger.error(err)
+}

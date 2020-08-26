@@ -1,15 +1,23 @@
 const fs = require('fs')
 const path = require('path')
+const os = require('os')
 
 const paths = {}
 module.exports = paths
 
 if (process.env.APP_ENV === 'dev') {
-  paths.dataDir = path.join(__dirname, '../appfiles/space.kasper.youtube-email-notifier')
-  paths.settings = path.join(__dirname, '../appfiles/space.kasper.youtube-email-notifier/settings.json')
+  paths.appDataDir = path.join(__dirname, '../appfiles/Application Support folder')
+  paths.settings = path.join(paths.appDataDir, 'settings.json')
+  paths.logfile = path.join(paths.appDataDir, 'all.log')
+  paths.logfileErr = path.join(paths.appDataDir, 'error.log')
 } else {
-  paths.dataDir = '~/Library/Application Support/space.kasper.youtube-email-notifier'
-  paths.settings = path.resolve(paths.dataDir, 'settings.json')
+  paths.homedir = os.homedir()
+  paths.appDataDir = path.join(paths.homedir, 'Library/Application Support/YouTube Email Notifier')
+  paths.settings = path.join(paths.appDataDir, 'settings.json')
+  paths.logfile = path.join(paths.appDataDir, 'all.log')
+  paths.logfileErr = path.join(paths.appDataDir, 'error.log')
+  paths.appBinary = process.execPath
+  paths.appBundle = path.join(paths.appBinary, '../../..')
 }
 
-if (!fs.existsSync(paths.dataDir)) fs.mkdirSync(paths.dataDir, { recursive: true })
+if (!fs.existsSync(paths.appDataDir)) fs.mkdirSync(paths.appDataDir, { recursive: true })

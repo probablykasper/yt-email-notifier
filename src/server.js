@@ -5,6 +5,7 @@ const serveStatic = require('serve-static')
 const WebSocket = require('ws')
 const fetch = require('node-fetch')
 const paths = require('./paths.js')
+const logger = require('./logger.js')
 
 const app = connect()
 app.use(serveStatic('src/web'))
@@ -84,14 +85,14 @@ wss.on('connection', async (ws) => {
     connection.close(1000, 'old connection')
   }
   connection = ws
-  console.log('WS Open')
+  logger.info('WS Open')
   send('newStore', store)
 
   ws.on('close', (code, reason) => {
     if (reason === 'old connection') {
-      console.log('WS Close old connection')
+      logger.info('WS Close old connection')
     } else {
-      console.log('WS Close')
+      logger.info('WS Close')
       setTimeout(() => {
         if (connection === null) {
           module.exports.close()
@@ -103,7 +104,7 @@ wss.on('connection', async (ws) => {
 
   ws.on('message', async (msg) => {
     const { type, data } = JSON.parse(msg)
-    console.log(`WS "${type}" message received:`, data)
+    logger.info(`WS "${type}" message received:`, data)
 
     try {
       if (type === 'setApiKey') {
@@ -148,8 +149,7 @@ wss.on('connection', async (ws) => {
         storeUpdate()
       }
     } catch(err) {
-      console.log(':::err:::')
-      console.log(err)
+      logger.error(err)
       send('error', err instanceof Error ? err.toString() : err)
     }
   })
@@ -163,8 +163,8 @@ const port = 9199
 module.exports.open = async () => {
   if (isOpen) return
   server = http.createServer(app).listen(port, err => {
-    if (err) return console.log('ERROR OPENING SERVER')
-    console.log('Server listening on http://localhost:'+port)
+    if (err) return logger.error('ERROR OPENING SERVER')
+    logger.info('Server listening on http://localhost:'+port)
     isOpen = true
   })
   server.on('upgrade', function upgrade(request, socket, head) {
@@ -176,10 +176,10 @@ module.exports.open = async () => {
 
 module.exports.close = async () => {
   if (isOpen) {
-    console.log('Closing server')
+    logger.info('Closing server')
     server.close()
     isOpen = false
   } else {
-    console.log('Server close called, but is already closed')
+    logger.warn('Server close called, but is already closed')
   }
 }
