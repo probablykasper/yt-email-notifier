@@ -93,6 +93,7 @@ wss.on('connection', async (ws) => {
       logger.info('WS Close old connection')
     } else {
       logger.info('WS Close')
+      connection = null
       setTimeout(() => {
         if (connection === null) {
           module.exports.close()
