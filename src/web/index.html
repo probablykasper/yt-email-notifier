@@ -90,7 +90,7 @@
         </div>
       </div>
     </section>
-    <div class="container" style="max-width: 900px;">
+    <div class="container" style="max-width: 850px;">
       <section class="section py-3">
         <div class="buttons field">
           <button class='button' onclick="$('#api-key-modal').addClass('is-active')">API key</button>
@@ -104,15 +104,16 @@
           <p>Minutes between refreshes: {{this.minutesBetweenRefreshes}}</p>
           <p>Check for videos after (Time last synced): {{this.lastSyncedAt}}</p>
           <br>
+          <h5 class='title is-5'>Channels:</h5>
           <table class="table is-fullwidth is-hoverable mb-3">
             <tbody>
               {{#each channels}}
               <tr>
-                <td class="is-vcentered" style="width: 1px;">
+                <td class="is-vcentered" style="max-width: 1px;">
                   <img src="{{this.icon}}" width="40">
                 </td>
                 <td class="is-vcentered">
-                  <b>{{this.name}}</b><br>
+                  <b style="display: block;">{{this.name}}</b>
                   <span class="has-text-grey">{{this.id}}</span>
                 </td>
                 <td class="is-vcentered" style="width: 1px;">
@@ -124,9 +125,9 @@
           </table>
           <br>
           <br>
-          <br>
         {{/each}}
       </section>
+      <br>
     </div>
   </script>
 </body>

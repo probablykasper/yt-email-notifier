@@ -4,6 +4,7 @@ const connect = require('connect')
 const serveStatic = require('serve-static')
 const WebSocket = require('ws')
 const fetch = require('node-fetch')
+const Datastore = require('nedb')
 const paths = require('./paths.js')
 const logger = require('./logger.js')
 
@@ -30,22 +31,22 @@ if (fs.existsSync(paths.settings)) {
         minutesBetweenRefreshes: 60*5,
         channels: [
           {
-            icon: '',
-            id: '',
-            uploadsPlaylistId: '',
-            name: 'Monstercat',
+            icon: 'https://yt3.ggpht.com/a/AATXAJwLt5qcWgwpO6Noz11FaNogK45FeQyBy1Lru0vHGQ=s240-c-k-c0xffffffff-no-rj-mo',
+            id: 'UCJ6td3C9QlPO9O_J5dF4ZzA',
+            uploadsPlaylistId: 'UUJ6td3C9QlPO9O_J5dF4ZzA',
+            name: 'Monstercat: Uncaged',
           },
           {
-            icon: '',
-            id: '',
-            uploadsPlaylistId: '',
+            icon: 'https://yt3.ggpht.com/a/AATXAJy3pMToshtoxjKPLHwSCv7ab4UEO0m7wRbly6i8Gw=s240-c-k-c0xffffffff-no-rj-mo',
+            id: 'UCCvVpbYRgYjMN7mG7qQN0Pg',
+            uploadsPlaylistId: 'UUCvVpbYRgYjMN7mG7qQN0Pg',
             name: 'Bass Nation',
           },
           {
-            icon: '',
-            id: '',
-            uploadsPlaylistId: '',
-            name: 'Valiant',
+            icon: 'https://yt3.ggpht.com/a/AATXAJwvW4WzARWJorw4NG4eNg5gnR3nZ_brzwdHpz_Bvw=s240-c-k-c0xffffffff-no-rj-mo',
+            id: 'UCcJL2ld6kxy_nuV1u7PVQ0g',
+            uploadsPlaylistId: 'UUcJL2ld6kxy_nuV1u7PVQ0g',
+            name: 'DrDisRespect',
           },
         ],
       },
@@ -55,7 +56,8 @@ if (fs.existsSync(paths.settings)) {
 
 async function fetchYT(options) {
   let url = options.url
-  if (!options.query) options.query = { key: store.apiKey }
+  if (!options.query) options.query = {}
+  options.query.key = store.apiKey
   if (options.query) {
     url += '?'
     for (const key in options.query) {
@@ -68,6 +70,72 @@ async function fetchYT(options) {
   if (json.error) throw json.error
   return json
 }
+
+let intervals = []
+
+const pLimit = require('p-limit')
+const limit = pLimit(1)
+async function refresh(instance) {
+  try {
+    const channelCount = instance.channels.length
+    const queries = []
+    for (let i = 0; i < channelCount; i++) {
+      const channel = instance.channels[i]
+      const query = async () => {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        logger.info(instance.email, channel.name)
+        const uploads = await fetchYT({
+          url: 'https://www.googleapis.com/youtube/v3/playlistItems',
+          query: {
+            part: 'snippet,contentDetails',
+            playlistId: channel.uploadsPlaylistId,
+            maxResults: 50,
+          },
+        })
+        for (let i = 0; i < uploads.items.length; i++) {
+          // weird date situation:
+          //  `snippet.publishedAt` is when the video was added to the uploads playlist.
+          //  `contentDetails.videoPublishedAt` is when the video was published
+          //  Soemtimes these are a few seconds different, other times an hour
+          //  (like with Monstercat). No idea why.
+          //  Additionally, I tried to compare with what YouTube shows:
+          //  - What YouTube shows: 19:56 (should be up to 1 hour inaccurate)
+          //  - publishedAt: 17:31
+          //  - 18:00
+          //  YouTube only shows "9 hours ago", so you'd expect it to be up to
+          //  an hour off... But it's almost 2 hours off, if not 2.5 hours.
+          //  :/
+
+          const video = uploads.items[i]
+          const publishedAt = new Date(video.contentDetails.videoPublishedAt)
+          if (publishedAt.getTime() >= instance.lastSyncedAt) {
+            logger.info(' - VID ', video.snippet.title)
+          }
+        }
+      }
+      queries.push(limit(query))
+    }
+    await Promise.all(queries)
+  } catch(err) {
+    logger.error(err)
+  }
+}
+
+function restartIntervals() {
+  for (let i = 0; i < intervals.length; i++) {
+    clearInterval(intervals[i])
+  }
+  intervals = []
+
+  for (let i = 0; i < store.instances.length; i++) {
+    const instance = store.instances[i]
+    const intervalTime = instance.minutesBetweenRefreshes*1000*60
+    refresh(instance)
+    const interval = setInterval(refresh, intervalTime, instance)
+    intervals.push(interval)
+  }
+}
+restartIntervals()
 
 const wss = new WebSocket.Server({ noServer: true })
 let connection = null
@@ -113,7 +181,7 @@ wss.on('connection', async (ws) => {
         storeUpdate()
 
       } else if (type === 'newEmail') {
-        if (!data.channels) data.channels = []
+        data.channels = []
         if (!data.lastSyncedAt) data.lastSyncedAt = new Date().getTime()
         store.instances.push(data)
         storeUpdate()
