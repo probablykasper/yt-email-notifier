@@ -1,10 +1,11 @@
 const log4js = require('log4js')
+const paths = require('./paths')
 
 const config = {
   appenders: {
     everything: {
       type: 'file',
-      filename: 'appfiles/everything.log',
+      filename: paths.logfile,
       layout: { type: 'pattern', pattern: '%d{yyyy-MM-dd hh:mm:ss} %p %m' },
     },
     console: {
@@ -13,7 +14,7 @@ const config = {
     },
     bad: {
       type: 'file',
-      filename: 'appfiles/bad.log',
+      filename: paths.logfileBad,
       layout: { type: 'pattern', pattern: '%d{yyyy-MM-dd hh:mm:ss} %p %m' },
     },
     badFilter: { type: 'logLevelFilter', appender: 'bad', level: 'warn' },
