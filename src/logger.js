@@ -1,18 +1,32 @@
-const winston = require('winston')
+const log4js = require('log4js')
 
-const paths = require('./paths')
-
-module.exports = winston.createLogger({
-  level: 'info',
-  format: winston.format.json(),
-  transports: [
-    new winston.transports.File({ filename: paths.logfileErr, level: 'error' }),
-    new winston.transports.File({ filename: paths.logfile }),
-  ],
-})
-
-if (process.env.APP_ENV === 'dev') {
-  module.exports.add(new winston.transports.Console({
-    format: winston.format.simple(),
-  }))
+const config = {
+  appenders: {
+    everything: {
+      type: 'file',
+      filename: 'appfiles/everything.log',
+      layout: { type: 'pattern', pattern: '%d{yyyy-MM-dd hh:mm:ss} %p %m' },
+    },
+    console: {
+      type: 'stdout',
+      layout: { type: 'pattern', pattern: '%[%d{yyyy-MM-dd hh:mm:ss} %p%] %m' },
+    },
+    bad: {
+      type: 'file',
+      filename: 'appfiles/bad.log',
+      layout: { type: 'pattern', pattern: '%d{yyyy-MM-dd hh:mm:ss} %p %m' },
+    },
+    badFilter: { type: 'logLevelFilter', appender: 'bad', level: 'warn' },
+  },
+  categories: {
+    default: { appenders: ['badFilter', 'everything'], level: 'debug' },
+  },
 }
+if (process.env.APP_ENV === 'dev') {
+  config.categories.default.appenders.push('console')
+}
+log4js.configure(config)
+
+const logger = log4js.getLogger()
+
+module.exports = logger
