@@ -139,8 +139,12 @@ async function refresh(instance) {
               if (video.snippet.thumbnails.maxres) {
                 doc.thumbnails.maxres = video.snippet.thumbnails.maxres.url
               }
-              console.log('- NEW VID '+doc._id+' (this is where we send the email')
-              await sendMail(store.fromEmail, instance.email, doc, channel)
+              logger.info(` - NEW VID ${doc._id}`)
+              if (process.env.DONT_SEND_MAIL) {
+                logger.info('  - Not sending mail due to env variable DONT_SEND_MAIL')
+              } else {
+                await sendMail(store.fromEmail, instance.email, doc, channel)
+              }
             }
           }
         }
@@ -247,15 +251,15 @@ async function sendMail(fromEmail, toEmail, videoDoc, channel) {
     html: html,
   }, (err, info) => {
     if (err) {
-      logger.error(`Mail (${videoDoc._id}) error sending:`, err)
-      logger.info(`Mail (${videoDoc._id}) info:`, info)
+      logger.error(`  - Mail (${videoDoc._id}) error sending:`, err)
+      logger.info(`  - Mail (${videoDoc._id}) info:`, info)
     } else if (info.rejected) {
-      logger.error(`Mail (${videoDoc._id}) seems to have been rejected`)
-      logger.info(`Mail (${videoDoc._id}) info:`, info)
+      logger.error(`  - Mail (${videoDoc._id}) seems to have been rejected`)
+      logger.info(`  - Mail (${videoDoc._id}) info:`, info)
     } else {
-      logger.info(`Mail (${videoDoc._id}) info:`, info)
-      // logger.info('new doc', videoDoc)
-      // db.insert(videoDoc)
+      logger.info(`  - Mail (${videoDoc._id}) info:`, info)
+      logger.info(`  - Saving to db (${videoDoc._id})`)
+      db.insert(videoDoc)
     }
   })
 }
@@ -356,6 +360,13 @@ wss.on('connection', async (ws) => {
           addedAt: new Date().getTime(),
         })
         storeUpdate()
+      }
+      else if (type === 'removeChannel') {
+        const index = data.index
+        const instance = store.instances[data.instance]
+        instance.channels.splice(index, 1)
+        storeUpdate()
+      
       }
     } catch(err) {
       logger.error(err)
