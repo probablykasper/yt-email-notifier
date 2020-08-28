@@ -67,14 +67,17 @@
       </div>
     </div>
 
-    <div id='api-key-modal' class="modal">
-      <div class="modal-background" onclick="$('#api-key-modal').removeClass('is-active')"></div>
+    <div id='setup-modal' class="modal">
+      <div class="modal-background" onclick="$('#setup-modal').removeClass('is-active')"></div>
       <div class="modal-content box px-6 py-5">
-        <form id='api-key-form'>
-          <h1 class='title is-size-4'><b>Set API key</b></h1>
+        <form id='setup-form'>
+          <h1 class='title is-size-4'><b>Setup</b></h1>
+          <label class='label'>API key</label>
           <input id='api-key-input' class="input mb-5" value="{{apiKey}}" placeholder="AIzaSyAtvLCpmfVPTVNu1xxzBKcR3T28YWm0JXc" required>
+          <label class='label'>From email</label>
+          <input id='from-email-input' class="input mb-5" value="{{fromEmail}}" type='email' placeholder="noreply@ytem.example.com" required>
           <button type="submit" class="button is-success">Save</button>
-          <div class="button" onclick="$('#api-key-modal').removeClass('is-active')">Cancel</div>
+          <div class="button" onclick="$('#setup-modal').removeClass('is-active')">Cancel</div>
         </form>
       </div>
     </div>
@@ -93,7 +96,7 @@
     <div class="container" style="max-width: 850px;">
       <section class="section py-3">
         <div class="buttons field">
-          <button class='button' onclick="$('#api-key-modal').addClass('is-active')">API key</button>
+          <button class='button' onclick="$('#setup-modal').addClass('is-active')">Setup</button>
           <button class='button is-primary' onclick="$('#new-email-modal').addClass('is-active')">Add email</button>
           <button class='button is-link' onclick="$('#add-channel-modal').addClass('is-active')">Add channel</button>
         </div>

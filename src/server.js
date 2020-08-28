@@ -4,9 +4,16 @@ const connect = require('connect')
 const serveStatic = require('serve-static')
 const WebSocket = require('ws')
 const fetch = require('node-fetch')
-const Datastore = require('nedb')
 const paths = require('./paths.js')
 const logger = require('./logger.js')
+
+const nodemailer = require('nodemailer')
+let mailTransporter = nodemailer.createTransport({
+  sendmail: true,
+})
+
+const Datastore = require('nedb')
+const db = new Datastore({ filename: paths.db, autoload: true })
 
 const app = connect()
 app.use(serveStatic('src/web'))
@@ -18,6 +25,7 @@ if (fs.existsSync(paths.settings)) {
 } else {
   store = {
     apiKey: '',
+    fromEmail: '',
     instances: [
       {
         email: 'test@example.com',
@@ -109,7 +117,31 @@ async function refresh(instance) {
           const video = uploads.items[i]
           const publishedAt = new Date(video.contentDetails.videoPublishedAt)
           if (publishedAt.getTime() >= instance.lastSyncedAt) {
-            logger.info(' - VID ', video.snippet.title)
+            const videoDoc = await new Promise((resolve, reject) => {
+              db.findOne({ _id: video.snippet.resourceId.videoId }, (err, doc) => {
+                if (err) reject(err)
+                else resolve(doc)
+              })
+            })
+            if (!videoDoc) {
+              const doc = {
+                _id: video.snippet.resourceId.videoId,
+                thumbnails: {
+                  high: video.snippet.thumbnails.high.url,
+                },
+                title: video.snippet.title,
+                channelTitle: video.snippet.channelTitle,
+                publishedAt: publishedAt.getTime(),
+              }
+              if (video.snippet.thumbnails.standard) {
+                doc.thumbnails.standard = video.snippet.thumbnails.standard.url
+              }
+              if (video.snippet.thumbnails.maxres) {
+                doc.thumbnails.maxres = video.snippet.thumbnails.maxres.url
+              }
+              console.log('- NEW VID '+doc._id+' (this is where we send the email')
+              await sendMail(store.fromEmail, instance.email, doc, channel)
+            }
           }
         }
       }
@@ -119,6 +151,113 @@ async function refresh(instance) {
   } catch(err) {
     logger.error(err)
   }
+}
+
+function htmlEncode(str) {
+  return str
+    .replace('&', '&amp;')
+    .replace('<', '&lt;')
+    .replace('>', '&gt;')
+    .replace('\'', '&#39;')
+    .replace('"', '&quot;')
+}
+
+async function sendMail(fromEmail, toEmail, videoDoc, channel) {
+  const emailTitle = videoDoc.channelTitle+' just uploaded a video'
+  let thumbnailUrl = videoDoc.thumbnails.high
+  if (videoDoc.thumbnails.standard) thumbnailUrl = videoDoc.thumbnails.standard
+  if (videoDoc.thumbnails.maxres) thumbnailUrl = videoDoc.thumbnails.maxres
+  const videoUrl = 'https://youtube.com/watch?v='+videoDoc._id
+  const channelUrl = 'https://www.youtube.com/channel/'+channel.id
+  const html = `
+    <html>
+      <head>
+        <title>${htmlEncode(emailTitle)}</title>
+      </head>
+      <body>
+        <table align="center" width="608" border="0" cellpadding="0" cellspacing="0"><tbody><tr>
+          <td width="20"></td>
+          <td>
+            <table align="center" width="608" border="0" cellpadding="0" cellspacing="0">
+              <tbody>
+                <tr>
+                  <td>
+                    <a href="${htmlEncode(videoUrl)}" class="nonplayable">
+                      <table width="608" height="342" style="background-repeat:no-repeat;background-size:100% auto;background-position:center;" background="${htmlEncode(thumbnailUrl)}" border="0" cellpadding="0" cellspacing="0">
+                        <tbody>
+                          <tr>
+                            <td width="608" style="max-height:342px;"></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </a>
+                  </td>
+                </tr>
+                <tr height="16"></tr>
+                <tr>
+                  <table border="0" cellpadding="0" cellspacing="0">
+                    <tbody>
+                      <tr>
+                        <td valign="top">
+                          <img width="42" style="display:block;" src="${htmlEncode(channel.icon)}">
+                        </td>
+                        <td width="16"></td>
+                        <td valign="top">
+                          <table border="0" cellpadding="0" cellspacing="0">
+                            <tbody>
+                              <tr>
+                                <td>
+                                  <a style="text-decoration:none;color:#212121;font-size:14px;font-family:Roboto,sans-serif" href="${htmlEncode(videoUrl)}" class="nonplayable">${htmlEncode(videoDoc.title)}</a>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <a style="text-decoration:none;color:#757575;font-size:12px;font-family:Roboto,sans-serif" href="${htmlEncode(channelUrl)}">${htmlEncode(videoDoc.channelTitle)}</a>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </tr>
+                <tr>
+                  <td>
+                    <hr style="display:block;height:1px;border:0;border-top:1px solid #eaeaea;margin:16px 0px;padding:0">
+                  </td>
+                </tr>
+                <tr>
+                  <td style="color:#757575;font-size:12px;font-family:Roboto,sans-serif">
+                    You received this email because you chose to get upload notifications from YouTube Email Notifier. If you don't want these emails anymore, open the settings of the YouTube Email Notifier app.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+          <td width="20"></td>
+        </tr></tbody></table>
+      </body>
+    </html>
+  `
+  mailTransporter.sendMail({
+    from: `YT Email Notifier <${fromEmail}>`,
+    to: toEmail,
+    subject: emailTitle,
+    html: html,
+  }, (err, info) => {
+    if (err) {
+      logger.error(`Mail (${videoDoc._id}) error sending:`, err)
+      logger.info(`Mail (${videoDoc._id}) info:`, info)
+    } else if (info.rejected) {
+      logger.error(`Mail (${videoDoc._id}) seems to have been rejected`)
+      logger.info(`Mail (${videoDoc._id}) info:`, info)
+    } else {
+      logger.info(`Mail (${videoDoc._id}) info:`, info)
+      // logger.info('new doc', videoDoc)
+      // db.insert(videoDoc)
+    }
+  })
 }
 
 function restartIntervals() {
@@ -176,8 +315,9 @@ wss.on('connection', async (ws) => {
     logger.info(`WS "${type}" message received:`, data)
 
     try {
-      if (type === 'setApiKey') {
-        store.apiKey = data.key
+      if (type === 'setup') {
+        store.apiKey = data.apiKey
+        store.fromEmail = data.fromEmail
         storeUpdate()
 
       } else if (type === 'newEmail') {

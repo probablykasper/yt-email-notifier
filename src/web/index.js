@@ -24,10 +24,11 @@ function render(data) {
   const html = template(data)
   document.getElementById('app').innerHTML = html
 
-  $('#api-key-form').submit((e) => {
+  $('#setup-form').submit((e) => {
     e.preventDefault()
-    window.a('setApiKey', {
-      key: $('#api-key-input').val(),
+    window.a('setup', {
+      apiKey: $('#api-key-input').val(),
+      fromEmail: $('#from-email-input').val(),
     })
     return false
   })
