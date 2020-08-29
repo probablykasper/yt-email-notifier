@@ -326,8 +326,11 @@ wss.on('connection', async (ws) => {
         storeUpdate()
 
       } else if (type === 'newEmail') {
-        data.channels = []
-        store.instances.push(data)
+        store.instances.push({
+          email: data.email,
+          minutesBetweenRefreshes: data.minutesBetweenRefreshes,
+          channels: [],
+        })
         storeUpdate()
 
       } else if (type === 'addChannel') {

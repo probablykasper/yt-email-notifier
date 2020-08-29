@@ -40,6 +40,7 @@ function render(data) {
     e.preventDefault()
     window.a('newEmail', {
       email: $('#new-email-input').val(),
+      minutesBetweenRefreshes: $('#new-email-minutes-input').val() || 60,
     })
     $('#new-email-modal').removeClass('is-active')
     return false

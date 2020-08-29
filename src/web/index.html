@@ -14,8 +14,11 @@
     <div class="modal-background" onclick="$('#new-email-modal').removeClass('is-active')"></div>
     <div class="modal-content box px-6 py-5">
       <form id='new-email-form'>
-        <h1 class='is-size-4'><b>New email</b></h1>
-        <input id='new-email-input' class="input my-5" type="email" placeholder="Email" required>
+        <h1 class='title is-size-4'><b>New email</b></h1>
+        <label class='label'>Email</label>
+        <input id='new-email-input' class="input mb-5" type="email" placeholder="Email" required>
+        <label class='label'>Minutes between refreshes</label>
+        <input id='new-email-minutes-input' class="input mb-5" type="number" placeholder="60" required>
         <button type="submit" class="button is-success">Create</button>
         <div class="button" onclick="$('#new-email-modal').removeClass('is-active')">Cancel</div>
       </form>
