@@ -265,7 +265,7 @@ async function sendMail(fromEmail, toEmail, videoDoc, channel) {
   })
 }
 
-function restartIntervals() {
+module.exports.restartIntervals = function() {
   for (let i = 0; i < intervals.length; i++) {
     clearInterval(intervals[i])
   }
@@ -279,7 +279,7 @@ function restartIntervals() {
     intervals.push(interval)
   }
 }
-restartIntervals()
+module.exports.restartIntervals()
 
 const wss = new WebSocket.Server({ noServer: true })
 let connection = null

@@ -32,6 +32,15 @@ module.exports.init = async function(options = {}) {
       },
     },
     {
+      title: 'Check Now',
+      tooltip: null,
+      checked: false,
+      enabled: true,
+      handler: async () => {
+        await server.restartIntervals()
+      },
+    },
+    {
       title: 'Launch on Startup',
       tooltip: null,
       checked: autoLauncher ? await autoLauncher.isEnabled() : false,
