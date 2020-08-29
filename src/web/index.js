@@ -20,6 +20,9 @@ let doneFunc
 
 function render(data) {
   const source = document.getElementById('app-template').innerHTML
+  window.Handlebars.registerHelper('showDate', function(timeNumber) {
+    return new Date(timeNumber).toLocaleString()
+  })
   const template = window.Handlebars.compile(source)
   const html = template(data)
   document.getElementById('app').innerHTML = html
@@ -33,26 +36,29 @@ function render(data) {
     return false
   })
 
-  const datetime = $('#new-email-datetime')
-  datetime.val(new Date().toLocaleString())
   $('#new-email-form').submit((e) => {
     e.preventDefault()
-    const time = Date.parse(datetime.val())
-    if (!time) return alert('Invalid date/time')
     window.a('newEmail', {
       email: $('#new-email-input').val(),
-      lastSyncedAt: time,
     })
     $('#new-email-modal').removeClass('is-active')
     return false
   })
 
+  const datetime = $('#add-channel-datetime')
+  datetime.val(new Date().toLocaleString())
   $('#add-channel-form').submit((e) => {
     e.preventDefault()
     $('#add-channel-modal button[type="submit"]').addClass('is-loading')
+    const time = Date.parse(datetime.val())
+    if (!time) {
+      $('#add-channel-modal button[type="submit"]').removeClass('is-loading')
+      return alert('Invalid date/time')
+    }
     window.a('addChannel', {
       instance: $('#add-channel-select-instance select').val(),
       channel: $('#add-cannel-input').val(),
+      fromTime: time,
     })
     doneFunc = () => {
       $('#add-channel-modal button[type="submit"]').removeClass('is-loading')

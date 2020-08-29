@@ -16,8 +16,6 @@
       <form id='new-email-form'>
         <h1 class='is-size-4'><b>New email</b></h1>
         <input id='new-email-input' class="input my-5" type="email" placeholder="Email" required>
-        <label class='label'>Check for videos uploaded after this time:</label>
-        <input id='new-email-datetime' class="input mb-5" type="text" placeholder="2020-02-02 22:55">
         <button type="submit" class="button is-success">Create</button>
         <div class="button" onclick="$('#new-email-modal').removeClass('is-active')">Cancel</div>
       </form>
@@ -61,6 +59,8 @@
           </div>
           <label class='label'>Channel URL</label>
           <input id='add-cannel-input' class='input mb-5' type='url' placeholder='https://www.youtube.com/channel/UCQpQGT51tQbDQztiEH6hBcQ' required>
+          <label class='label'>Check for videos published after this time:</label>
+          <input id='add-channel-datetime' class="input mb-5" type="text" placeholder="2020-02-02 22:55">
           <button type="submit" class="button is-success">Add</button>
           <div class="button" onclick="$('#add-channel-modal').removeClass('is-active')">Cancel</div>
         </form>
@@ -105,21 +105,21 @@
         {{#each instances}}
           <h2 class="title is-3">{{this.email}}</h2>
           <p>Minutes between refreshes: {{this.minutesBetweenRefreshes}}</p>
-          <p>Check for videos after (Time last synced): {{this.lastSyncedAt}}</p>
           <br>
           <h5 class='title is-5'>Channels:</h5>
           <table class="table is-fullwidth is-hoverable mb-3">
             <tbody>
               {{#each channels}}
               <tr>
-                <td class="is-vcentered" style="max-width: 1px;">
-                  <img src="{{this.icon}}" width="40">
+                <td class="is-vcentered" style="min-width:40px;box-sizing:content-box;">
+                  <img style="width:40px;" src="{{this.icon}}">
                 </td>
-                <td class="is-vcentered">
+                <td class="is-vcentered" style="width:100%;">
                   <b style="display: block;">{{this.name}}</b>
-                  <span class="has-text-grey">{{this.id}}</span>
+                  <span class="has-text-grey" style="display: block;font-size:0.9rem!important;">{{this.id}}</span>
+                  <span class="has-text-grey" style="display: block;font-size:0.9rem!important;">Check for videos after {{showDate this.fromTime}}</span>
                 </td>
-                <td class="is-vcentered" style="width: 1px;">
+                <td class="is-vcentered" style="width: 100%;">
                   <a onclick="a('removeChannel', { index: {{@index}}, instance: {{@../index}} })">Remove</a>
                 </td>
               </tr>

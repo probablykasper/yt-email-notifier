@@ -29,13 +29,11 @@ if (fs.existsSync(paths.settings)) {
     instances: [
       {
         email: 'test@example.com',
-        lastSyncedAt: 1597870637076,
         minutesBetweenRefreshes: 60,
         channels: [],
       },
       {
         email: 'test2@example.com',
-        lastSyncedAt: 1597870637076,
         minutesBetweenRefreshes: 60*5,
         channels: [
           {
@@ -43,18 +41,21 @@ if (fs.existsSync(paths.settings)) {
             id: 'UCJ6td3C9QlPO9O_J5dF4ZzA',
             uploadsPlaylistId: 'UUJ6td3C9QlPO9O_J5dF4ZzA',
             name: 'Monstercat: Uncaged',
+            fromTime: 1597870637076,
           },
           {
             icon: 'https://yt3.ggpht.com/a/AATXAJy3pMToshtoxjKPLHwSCv7ab4UEO0m7wRbly6i8Gw=s240-c-k-c0xffffffff-no-rj-mo',
             id: 'UCCvVpbYRgYjMN7mG7qQN0Pg',
             uploadsPlaylistId: 'UUCvVpbYRgYjMN7mG7qQN0Pg',
             name: 'Bass Nation',
+            fromTime: 1597870637076,
           },
           {
             icon: 'https://yt3.ggpht.com/a/AATXAJwvW4WzARWJorw4NG4eNg5gnR3nZ_brzwdHpz_Bvw=s240-c-k-c0xffffffff-no-rj-mo',
             id: 'UCcJL2ld6kxy_nuV1u7PVQ0g',
             uploadsPlaylistId: 'UUcJL2ld6kxy_nuV1u7PVQ0g',
             name: 'DrDisRespect',
+            fromTime: 1597870637076,
           },
         ],
       },
@@ -116,7 +117,7 @@ async function refresh(instance) {
 
           const video = uploads.items[i]
           const publishedAt = new Date(video.contentDetails.videoPublishedAt)
-          if (publishedAt.getTime() >= instance.lastSyncedAt) {
+          if (publishedAt.getTime() >= channel.fromTime) {
             const videoDoc = await new Promise((resolve, reject) => {
               db.findOne({ _id: video.snippet.resourceId.videoId }, (err, doc) => {
                 if (err) reject(err)
@@ -326,7 +327,6 @@ wss.on('connection', async (ws) => {
 
       } else if (type === 'newEmail') {
         data.channels = []
-        if (!data.lastSyncedAt) data.lastSyncedAt = new Date().getTime()
         store.instances.push(data)
         storeUpdate()
 
@@ -357,7 +357,7 @@ wss.on('connection', async (ws) => {
           name: channelObject.snippet.title,
           icon: channelObject.snippet.thumbnails.medium.url,
           uploadsPlaylistId: channelObject.contentDetails.relatedPlaylists.uploads,
-          addedAt: new Date().getTime(),
+          fromTime: data.fromTime,
         })
         storeUpdate()
       }
