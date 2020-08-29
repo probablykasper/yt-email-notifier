@@ -70,6 +70,21 @@
       </div>
     </div>
 
+    <div id='edit-email-modal' class="modal">
+      <div class="modal-background" onclick="$('#edit-email-modal').removeClass('is-active')"></div>
+      <div class="modal-content box px-6 py-5">
+        <form id='edit-email-form'>
+          <h1 class='title is-size-4'><b>Edit email</b></h1>
+          <label class='label'>Email</label>
+          <input id='edit-email-input' class="input mb-5" type="email" placeholder="Email" required>
+          <label class='label'>Minutes between refreshes</label>
+          <input id='edit-email-minutes-input' class="input mb-5" type="number" placeholder="60" required>
+          <button type="submit" class="button is-success">Save</button>
+          <div class="button" onclick="$('#edit-email-modal').removeClass('is-active')">Cancel</div>
+        </form>
+      </div>
+    </div>
+
     <div id='setup-modal' class="modal">
       <div class="modal-background" onclick="$('#setup-modal').removeClass('is-active')"></div>
       <div class="modal-content box px-6 py-5">
@@ -101,6 +116,7 @@
         <div class="buttons field">
           <button class='button' onclick="$('#setup-modal').addClass('is-active')">Setup</button>
           <button class='button is-primary' onclick="$('#new-email-modal').addClass('is-active')">Add email</button>
+          <button class='button is-dark' onclick="$('#edit-email-modal').addClass('is-active')">Edit email</button>
           <button class='button is-link' onclick="$('#add-channel-modal').addClass('is-active')">Add channel</button>
         </div>
       </section>
@@ -108,6 +124,7 @@
         {{#each instances}}
           <h2 class="title is-3">{{this.email}}</h2>
           <p>Minutes between refreshes: {{this.minutesBetweenRefreshes}}</p>
+          <p><a class='edit-email-button' data-instance='{{@index}}'>Edit</a></p>
           <br>
           <h5 class='title is-5'>Channels:</h5>
           <table class="table is-fullwidth is-hoverable mb-3">

@@ -333,6 +333,12 @@ wss.on('connection', async (ws) => {
         })
         storeUpdate()
 
+      } else if (type === 'editEmail') {
+        const instance = store.instances[data.instanceIndex]
+        instance.email = data.email
+        instance.minutesBetweenRefreshes = data.minutesBetweenRefreshes
+        storeUpdate()
+
       } else if (type === 'addChannel') {
         const segments = data.channel.split('/')
         const channelIdSegment = segments.indexOf('channel') + 1

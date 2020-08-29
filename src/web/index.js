@@ -46,6 +46,28 @@ function render(data) {
     return false
   })
 
+  let editInstanceIndex
+  $('.edit-email-button').click((e) => {
+    const instanceIndex = Number(e.target.dataset.instance)
+    editInstanceIndex = instanceIndex
+    const instance = data.instances[instanceIndex]
+    $('#edit-email-input').val(instance.email)
+    $('#edit-email-minutes-input').val(instance.minutesBetweenRefreshes)
+    $('#edit-email-modal').addClass('is-active')
+  })
+  $('#edit-email-form').submit((e) => {
+    e.preventDefault()
+    if (typeof editInstanceIndex === 'number') {
+      window.a('editEmail', {
+        instanceIndex: editInstanceIndex,
+        email: $('#edit-email-input').val(),
+        minutesBetweenRefreshes: $('#edit-email-minutes-input').val() || 60,
+      })
+    }
+    $('#edit-email-modal').removeClass('is-active')
+    return false
+  })
+
   const datetime = $('#add-channel-datetime')
   datetime.val(new Date().toLocaleString())
   $('#add-channel-form').submit((e) => {
