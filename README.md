@@ -35,6 +35,7 @@ YTEM is rough around the edges, and there are things that I could have fixed but
 - Check that you entered valid values. It might not always be obvious what has gone wrong
 - It's not supported to add the same channel multiple times
 - Since this runs locally, it obviously won't send you email notifications when your computer is off
+- To delete an email, you'd have to go into the settings file, which can be found in `~/Library/Application Support/YouTube Email Notifier`.
 
 ### Menubar options
 

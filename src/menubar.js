@@ -22,6 +22,15 @@ module.exports.init = async function(options = {}) {
 
   const items = [
     {
+      title: 'Check Now',
+      tooltip: null,
+      checked: false,
+      enabled: true,
+      handler: async () => {
+        await server.restartIntervals()
+      },
+    },
+    {
       title: 'Settings',
       tooltip: null,
       checked: false,
@@ -29,15 +38,6 @@ module.exports.init = async function(options = {}) {
       handler: async () => {
         await server.open()
         opener('http://localhost:9199')
-      },
-    },
-    {
-      title: 'Check Now',
-      tooltip: null,
-      checked: false,
-      enabled: true,
-      handler: async () => {
-        await server.restartIntervals()
       },
     },
     {
