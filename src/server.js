@@ -19,6 +19,17 @@ const db = new Datastore({ filename: paths.db, autoload: true })
 const app = connect()
 app.use(serveStatic(path.join(__dirname, '../web')))
 app.use(serveStatic(paths.appDataDir))
+app.use('/README.md', (req, res) => {
+  const readmePath = path.join(__dirname, '../README.md')
+  const readme = fs.readFileSync(readmePath)
+  res.end(readme)
+})
+// serve logo for readme
+app.use('/assets/logo.png', (req, res) => {
+  const logoPath = path.join(__dirname, '../assets/logo.png')
+  const logo = fs.readFileSync(logoPath)
+  res.end(logo)
+})
 let server
 
 let store

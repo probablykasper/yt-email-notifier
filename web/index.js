@@ -16,6 +16,23 @@ ws.onclose = () => {
   $('#offline-modal').addClass('is-active')
 }
 
+$(document).ready(() => {
+  const converter = new window.showdown.Converter()
+  fetch('/README.md', {
+    type: 'GET',
+  })
+    .then(response => response.text())
+    .then((markdown) => {
+      const html = converter.makeHtml(markdown)
+      $('#help-modal-content').html(html)
+    }).catch(() => {
+      console.log('err')
+    })
+  // .then((response) => {
+  // })
+  // $('help-modal-content').load('/README.md')
+})
+
 let doneFunc
 
 function render(data) {
@@ -110,9 +127,6 @@ ws.onmessage = (e) => {
     console.log('error from server:', data)
     $('#error-modal pre').text(JSON.stringify(data, null, '  '))
     $('#error-modal').addClass('is-active')
-  } else if (type === 'openBadLog') {
-    $('#bad-log').val(data)
-    $('#errors-modal').addClass('is-active')
   }
 
 }
