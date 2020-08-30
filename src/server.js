@@ -65,8 +65,6 @@ if (fs.existsSync(paths.settings)) {
   }
 }
 
-setTimeout(() => { logger.warn('test warning') }, 8000)
-
 async function fetchYT(options) {
   let url = options.url
   if (!options.query) options.query = {}

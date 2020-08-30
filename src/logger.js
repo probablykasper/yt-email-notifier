@@ -1,5 +1,6 @@
 const log4js = require('log4js')
 const EventEmitter = require('events')
+const displayNotification = require('display-notification')
 const paths = require('./paths.js')
 
 const kb = 1024
@@ -40,8 +41,12 @@ const logger = log4js.getLogger()
 module.exports.eventEmitter = new EventEmitter()
 
 module.exports.error = (...args) => {
-  module.exports.eventEmitter.emit('new-error')
   logger.error(...args)
+  module.exports.eventEmitter.emit('new-error')
+  displayNotification({
+    title: 'YT Email Notifier Error',
+    text: args.join(' '),
+  })
 }
 module.exports.info = (...args) => {
   logger.info(...args)
