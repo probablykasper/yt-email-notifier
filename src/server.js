@@ -264,6 +264,7 @@ module.exports.restartIntervals()
 
 const wss = new WebSocket.Server({ noServer: true })
 let connection = null
+let serverCloseTimeout = null
 
 // show unread errors dot when new errors happen
 logger.eventEmitter.removeAllListeners()
@@ -286,10 +287,9 @@ wss.on('connection', async (ws) => {
     send('newStore', store)
   }
 
-  if (connection) {
-    connection.close(1000, 'old connection')
-  }
+  if (connection) connection.close(1000, 'old connection')
   connection = ws
+  if (serverCloseTimeout) clearTimeout(serverCloseTimeout)
   logger.info('WS Open')
   send('newStore', store)
 
@@ -299,11 +299,8 @@ wss.on('connection', async (ws) => {
     } else {
       logger.info('WS Close')
       connection = null
-      setTimeout(() => {
-        if (connection === null) {
-          module.exports.close()
-          connection = null
-        }
+      serverCloseTimeout = setTimeout(() => {
+        module.exports.close()
       }, 5000)
     }
   })
