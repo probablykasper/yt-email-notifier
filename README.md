@@ -62,3 +62,9 @@ Build:
 ```sh
 npm run build
 ```
+
+### Publish new version
+
+1. Update CHANGELOG.md
+2. Bump the version number, commit and tag
+3. Create GitHub release with release notes
