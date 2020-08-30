@@ -64,7 +64,7 @@ async function fetchYT(options) {
 let intervals = []
 
 const pLimit = require('p-limit')
-const limit = pLimit(1)
+const limit = pLimit(5)
 async function refresh(instance) {
   try {
     const channelCount = instance.channels.length

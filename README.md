@@ -67,7 +67,9 @@ npm run build
 
 1. Update CHANGELOG.md and commit
 2. Bump the version number, commit and tag
-  ```
-  npm version <version>
-  ```
+
+    ```
+    npm version <version>
+    ```
+
 3. Create GitHub release with release notes
