@@ -110,6 +110,9 @@ ws.onmessage = (e) => {
     console.log('error from server:', data)
     $('#error-modal pre').text(JSON.stringify(data, null, '  '))
     $('#error-modal').addClass('is-active')
+  } else if (type === 'openBadLog') {
+    $('#bad-log').val(data)
+    $('#errors-modal').addClass('is-active')
   }
 
 }

@@ -42,6 +42,14 @@
     </div>
   </div>
 
+  <div id='errors-modal' class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-content box px-6 py-5">
+      <h1 class='is-size-4'><b>No connection with app</b></h1>
+      <pre id='bad-log'></pre>
+    </div>
+  </div>
+
   <script src="./lib/jquery.min.js"></script>
   <script src="./lib/handlebars.js"></script>
   <script src="./index.js"></script>
@@ -118,6 +126,13 @@
           <button class='button is-primary' onclick="$('#new-email-modal').addClass('is-active')">New email</button>
           <button class='button is-dark' onclick="$('#edit-email-modal').addClass('is-active')">Edit email</button>
           <button class='button is-link' onclick="$('#add-channel-modal').addClass('is-active')">Add channel</button>
+          {{!-- <button class='button is-danger is-light' onclick="$('#errors-modal').addClass('is-active')">See errors</button> --}}
+          <button class='button is-danger is-light' onclick="a('readErrors', null); window.open('/bad.log', '_blank')">
+            <span>See errors</span>
+            {{#if unreadErrors}}
+              <div style="width: 10px;height: 10px;background-color: hsl(348, 100%, 61%);border-radius: 50%;position: absolute;right: -4px;top: -4px;"></div>
+            {{/if}}
+          </button>
         </div>
       </section>
       <section class="section">

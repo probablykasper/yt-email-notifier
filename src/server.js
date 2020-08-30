@@ -17,6 +17,7 @@ const db = new Datastore({ filename: paths.db, autoload: true })
 
 const app = connect()
 app.use(serveStatic('src/web'))
+app.use(serveStatic(paths.appDataDir))
 let server
 
 let store
@@ -26,6 +27,7 @@ if (fs.existsSync(paths.settings)) {
   store = {
     apiKey: '',
     fromEmail: '',
+    unreadErrors: false,
     instances: [
       {
         email: 'test@example.com',
@@ -62,6 +64,8 @@ if (fs.existsSync(paths.settings)) {
     ],
   }
 }
+
+setTimeout(() => { logger.warn('test warning') }, 8000)
 
 async function fetchYT(options) {
   let url = options.url
@@ -284,6 +288,18 @@ module.exports.restartIntervals()
 const wss = new WebSocket.Server({ noServer: true })
 let connection = null
 
+// show unread errors dot when new errors happen
+logger.eventEmitter.removeAllListeners()
+logger.eventEmitter.on('new-error', () => {
+  if (store.unreadErrors === false) {
+    store.unreadErrors = true
+    fs.writeFileSync(paths.settings, JSON.stringify(store, null, '  '))
+    if (connection) {
+      connection.send(JSON.stringify({ type: 'newStore', data: store }))
+    }
+  }
+})
+
 wss.on('connection', async (ws) => {
   function send(type, data) {
     ws.send(JSON.stringify({ type, data }))
@@ -376,7 +392,11 @@ wss.on('connection', async (ws) => {
         instance.channels.splice(index, 1)
         storeUpdate()
       
+      } else if (type === 'readErrors') {
+        store.unreadErrors = false
+        storeUpdate()
       }
+
     } catch(err) {
       logger.error(err)
       send('error', err instanceof Error ? err.toString() : err)
