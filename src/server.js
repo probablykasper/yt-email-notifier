@@ -1,5 +1,6 @@
 const http = require('http')
 const fs = require('fs')
+const path = require('path')
 const connect = require('connect')
 const serveStatic = require('serve-static')
 const WebSocket = require('ws')
@@ -16,7 +17,7 @@ const Datastore = require('nedb')
 const db = new Datastore({ filename: paths.db, autoload: true })
 
 const app = connect()
-app.use(serveStatic('src/web'))
+app.use(serveStatic(path.join(__dirname, '../web')))
 app.use(serveStatic(paths.appDataDir))
 let server
 
@@ -28,40 +29,7 @@ if (fs.existsSync(paths.settings)) {
     apiKey: '',
     fromEmail: '',
     unreadErrors: false,
-    instances: [
-      {
-        email: 'test@example.com',
-        minutesBetweenRefreshes: 60,
-        channels: [],
-      },
-      {
-        email: 'test2@example.com',
-        minutesBetweenRefreshes: 60*5,
-        channels: [
-          {
-            icon: 'https://yt3.ggpht.com/a/AATXAJwLt5qcWgwpO6Noz11FaNogK45FeQyBy1Lru0vHGQ=s240-c-k-c0xffffffff-no-rj-mo',
-            id: 'UCJ6td3C9QlPO9O_J5dF4ZzA',
-            uploadsPlaylistId: 'UUJ6td3C9QlPO9O_J5dF4ZzA',
-            name: 'Monstercat: Uncaged',
-            fromTime: 1597870637076,
-          },
-          {
-            icon: 'https://yt3.ggpht.com/a/AATXAJy3pMToshtoxjKPLHwSCv7ab4UEO0m7wRbly6i8Gw=s240-c-k-c0xffffffff-no-rj-mo',
-            id: 'UCCvVpbYRgYjMN7mG7qQN0Pg',
-            uploadsPlaylistId: 'UUCvVpbYRgYjMN7mG7qQN0Pg',
-            name: 'Bass Nation',
-            fromTime: 1597870637076,
-          },
-          {
-            icon: 'https://yt3.ggpht.com/a/AATXAJwvW4WzARWJorw4NG4eNg5gnR3nZ_brzwdHpz_Bvw=s240-c-k-c0xffffffff-no-rj-mo',
-            id: 'UCcJL2ld6kxy_nuV1u7PVQ0g',
-            uploadsPlaylistId: 'UUcJL2ld6kxy_nuV1u7PVQ0g',
-            name: 'DrDisRespect',
-            fromTime: 1597870637076,
-          },
-        ],
-      },
-    ],
+    instances: [],
   }
 }
 

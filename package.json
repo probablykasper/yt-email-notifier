@@ -12,6 +12,11 @@
     "build": "pkg . --target macos --output dist/youtube-email-notifier && embler",
     "pack": "embler"
   },
+  "pkg": {
+    "assets": [
+      "web/**/*"
+    ]
+  },
   "embler": {
     "realName": "YouTube Email Notifier",
     "appId": "space.kasper.youtube-email-notifier",
