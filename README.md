@@ -6,6 +6,13 @@
 </h1>
 <p align="center">macOS menubar app that emails you YouTube upload notifications</p>
 
+<!-- hide this section inside the app, where the readme shows as a help section-->
+<p align="center" class="hide-in-app">
+  <img src="./assets/menubar-screenshot.jpg" width="150">
+  <br>
+  <img src="./assets/settings-screenshot.jpg" width="500">
+</p>
+
 ## Installation
 
 Download the `.dmg` file from the Releases section, and install like a normal app.
