@@ -81,8 +81,8 @@ async function refresh(instance) {
             maxResults: 50,
           },
         })
-        const newVids = []
-        for (let i = 0; i < uploads.items.length; i++) {
+        logger.info(instance.email, channel.name)
+        for (let i = uploads.items.length - 1; i >= 0; i--) {
           // weird date situation:
           //  `snippet.publishedAt` is when the video was added to the uploads playlist.
           //  `contentDetails.videoPublishedAt` is when the video was published
@@ -121,21 +121,13 @@ async function refresh(instance) {
               if (video.snippet.thumbnails.maxres) {
                 doc.thumbnails.maxres = video.snippet.thumbnails.maxres.url
               }
-              const newVid = {id: doc._id}
+              logger.info(`  ${doc._id} NEW VID`)
               if (process.env.DONT_SEND_MAIL) {
-                newVid.DONT_SEND_MAIL = true
+                logger.info(`  ${doc._id} Not sending mail due to env variable DONT_SEND_MAIL`)
               } else {
                 await sendMail(store.fromEmail, instance.email, doc, channel)
               }
-              newVids.push(newVid)
             }
-          }
-        }
-        logger.info(instance.email, channel.name)
-        for (const newVid of newVids) {
-          logger.info(` - NEW VID ${newVid.id}`)
-          if (newVid.DONT_SEND_MAIL) {
-            logger.info('  - Not sending mail due to env variable DONT_SEND_MAIL')
           }
         }
       }
@@ -156,7 +148,7 @@ function htmlEncode(str) {
     .replace('"', '&quot;')
 }
 
-async function sendMail(fromEmail, toEmail, videoDoc, channel) {
+function sendMail(fromEmail, toEmail, videoDoc, channel) {
   const emailTitle = videoDoc.channelTitle+' just uploaded a video'
   let thumbnailUrl = videoDoc.thumbnails.high
   if (videoDoc.thumbnails.standard) thumbnailUrl = videoDoc.thumbnails.standard
@@ -234,23 +226,28 @@ async function sendMail(fromEmail, toEmail, videoDoc, channel) {
       </body>
     </html>
   `
-  mailTransporter.sendMail({
-    from: `YT Email Notifier <${fromEmail}>`,
-    to: toEmail,
-    subject: emailTitle,
-    html: html,
-  }, (err, info) => {
-    if (err) {
-      logger.error(`  - Mail (${videoDoc._id}) error sending:`, err)
-      logger.info(`  - Mail (${videoDoc._id}) info:`, info)
-    } else if (info.rejected) {
-      logger.error(`  - Mail (${videoDoc._id}) seems to have been rejected`)
-      logger.info(`  - Mail (${videoDoc._id}) info:`, info)
-    } else {
-      logger.info(`  - Mail (${videoDoc._id}) info:`, info)
-      logger.info(`  - Saving to db (${videoDoc._id})`)
-      db.insert(videoDoc)
-    }
+  return new Promise((resolve, reject) => {
+    mailTransporter.sendMail({
+      from: `YT Email Notifier <${fromEmail}>`,
+      to: toEmail,
+      subject: emailTitle,
+      html: html,
+    }, (err, info) => {
+      if (err) {
+        logger.error(`  ${videoDoc._id} Mail error sending:`, err)
+        logger.info(`  ${videoDoc._id} Mail info:`, info)
+        reject()
+      } else if (info.rejected) {
+        logger.error(`  ${videoDoc._id} Mail seems to have been rejected`)
+        logger.info(`  ${videoDoc._id} Mail info:`, info)
+        reject()
+      } else {
+        logger.info(`  ${videoDoc._id} Mail info:`, info)
+        logger.info(`  ${videoDoc._id} Saving to db`)
+        db.insert(videoDoc)
+        resolve()
+      }
+    })
   })
 }
 
