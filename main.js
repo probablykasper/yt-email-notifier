@@ -8,11 +8,13 @@ try {
     menubar.init({
       openServerNow: true,
       openBrowserNow: false,
+      port: 9299,
     })
   } else {
     menubar.init({
       openServerNow: false,
       openBrowserNow: false,
+      port: 9199,
     })
   }
 

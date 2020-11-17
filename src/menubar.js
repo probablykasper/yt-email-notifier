@@ -9,8 +9,8 @@ const logger = require('./logger.js')
 module.exports.init = async function(options = {}) {
 
   if (options.openServerNow) {
-    await server.open()
-    if (options.openBrowserNow) opener('http://localhost:9199')
+    await server.open(options.port)
+    if (options.openBrowserNow) opener('http://localhost:'+options.port)
   }
 
   const autoLauncher = process.env.APP_ENV === 'dev'
@@ -37,7 +37,7 @@ module.exports.init = async function(options = {}) {
       enabled: true,
       handler: async () => {
         await server.open()
-        opener('http://localhost:9199')
+        opener('http://localhost:'+options.port)
       },
     },
     {

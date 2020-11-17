@@ -396,9 +396,8 @@ wss.on('connection', async (ws) => {
 
 
 let isOpen = false
-const port = 9199
 
-module.exports.open = async () => {
+module.exports.open = async (port) => {
   if (isOpen) return
   server = http.createServer(app).listen(port, err => {
     if (err) return logger.error('ERROR OPENING SERVER')

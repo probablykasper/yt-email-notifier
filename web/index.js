@@ -1,6 +1,6 @@
 const $ = window.$
 
-const ws = new WebSocket('ws://localhost:9199/ws')
+const ws = new WebSocket('ws://localhost:'+location.port+'/ws')
 
 ws.onopen = () => {
   console.log('WS open')
