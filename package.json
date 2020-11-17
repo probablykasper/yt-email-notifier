@@ -37,6 +37,7 @@
     "body-parser": "^1.19.0",
     "connect": "^3.7.0",
     "display-notification": "^2.0.0",
+    "iso8601-duration": "^1.2.0",
     "log4js": "^6.3.0",
     "nedb": "^1.8.0",
     "node-fetch": "^2.6.0",

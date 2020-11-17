@@ -4,6 +4,7 @@ const path = require('path')
 const connect = require('connect')
 const serveStatic = require('serve-static')
 const WebSocket = require('ws')
+const iso8601duration = require('iso8601-duration')
 const fetch = require('node-fetch')
 const paths = require('./paths.js')
 const logger = require('./logger.js')
@@ -63,6 +64,19 @@ async function fetchYT(options) {
 
 let intervals = []
 
+function parseDuration(isoDur) {
+  const dur = iso8601duration.parse(isoDur)
+  let result = dur.seconds
+  if (dur.seconds < 10) result = '0'+result
+  result = dur.minutes+':'+result
+  dur.hours += dur.days*24
+  if (dur.hours > 0) {
+    if (dur.minutes < 10) result = '0'+result
+    result = dur.hours+':'+result
+  }
+  return result
+}
+
 const pLimit = require('p-limit')
 const limit = pLimit(5)
 async function refresh(instance) {
@@ -81,6 +95,26 @@ async function refresh(instance) {
             maxResults: 50,
           },
         })
+        const isoDurations = []
+        let idList = ''
+        for (let i = 0; i < uploads.items.length; i++) {
+          const video = uploads.items[i]
+          const id = video.snippet.resourceId.videoId
+          if (idList !== '') idList += ','
+          idList += id
+        }
+        if (idList !== '') {
+          const videos = await fetchYT({
+            url: 'https://www.googleapis.com/youtube/v3/videos',
+            query: {
+              part: 'contentDetails',
+              id: idList.trimRight(','),
+            },
+          })
+          for (const item of videos.items) {
+            isoDurations[item.id] = item.contentDetails.duration
+          }
+        }
         logger.info(instance.email, channel.name)
         for (let i = uploads.items.length - 1; i >= 0; i--) {
           // weird date situation:
@@ -99,21 +133,27 @@ async function refresh(instance) {
           const video = uploads.items[i]
           const publishedAt = new Date(video.contentDetails.videoPublishedAt)
           if (publishedAt.getTime() >= channel.fromTime) {
+            const videoId = video.snippet.resourceId.videoId
             const videoDoc = await new Promise((resolve, reject) => {
-              db.findOne({ _id: video.snippet.resourceId.videoId }, (err, doc) => {
+              db.findOne({ _id: videoId }, (err, doc) => {
                 if (err) reject(err)
                 else resolve(doc)
               })
             })
             if (!videoDoc) {
+              const isoDuration = isoDurations[videoId]
+              if (!isoDuration) {
+                throw new Error(`isoDuration of video ${videoId} is ${isoDuration}`)
+              }
               const doc = {
-                _id: video.snippet.resourceId.videoId,
+                _id: videoId,
                 thumbnails: {
                   high: video.snippet.thumbnails.high.url,
                 },
                 title: video.snippet.title,
                 channelTitle: video.snippet.channelTitle,
                 publishedAt: publishedAt.getTime(),
+                isoDuration: isoDuration,
               }
               if (video.snippet.thumbnails.standard) {
                 doc.thumbnails.standard = video.snippet.thumbnails.standard.url
@@ -155,24 +195,34 @@ function sendMail(fromEmail, toEmail, videoDoc, channel) {
   if (videoDoc.thumbnails.maxres) thumbnailUrl = videoDoc.thumbnails.maxres
   const videoUrl = 'https://youtube.com/watch?v='+videoDoc._id
   const channelUrl = 'https://www.youtube.com/channel/'+channel.id
+  const durationText = parseDuration(videoDoc.isoDuration)
   const html = `
     <html>
       <head>
         <title>${htmlEncode(emailTitle)}</title>
       </head>
-      <body>
-        <table align="center" width="608" border="0" cellpadding="0" cellspacing="0"><tbody><tr>
-          <td width="20"></td>
+      <body style="margin: 0; padding: 0;">
+        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;max-width:636px"><tbody><tr>
+          <td width="14"></td>
           <td>
-            <table align="center" width="608" border="0" cellpadding="0" cellspacing="0">
+            <table align="center" width="608" border="0" cellpadding="0" cellspacing="0" style="width:100%">
               <tbody>
                 <tr>
                   <td>
-                    <a href="${htmlEncode(videoUrl)}" class="nonplayable">
-                      <table width="608" height="342" style="background-repeat:no-repeat;background-size:100% auto;background-position:center;" background="${htmlEncode(thumbnailUrl)}" border="0" cellpadding="0" cellspacing="0">
+                    <a style="text-decoration:none" href="${htmlEncode(videoUrl)}" class="nonplayable">
+                      <table class="imgtable" width="608" style="background-repeat:no-repeat;background-size:cover;background-position:center;width:100%" background="${htmlEncode(thumbnailUrl)}" border="0" cellpadding="0" cellspacing="0">
                         <tbody>
                           <tr>
-                            <td width="608" style="max-height:342px;"></td>
+                            <td style="padding-bottom:53%;padding-bottom:calc(56.25% - 24px - 8px)"></td>
+                          </tr>
+                          <tr>
+                            <td height="24" style="text-align:right" valign="bottom">
+                              <span style="color:#ffffff;font-size:12px;font-family:Roboto,sans-serif;background-color:#212121;border-radius: 2px;padding:2px 4px;display:inline-block">${htmlEncode(durationText)}</span>
+                            </td>
+                            <td width="8"></td>
+                          </tr>
+                          <tr>
+                            <td height="8"></td>
                           </tr>
                         </tbody>
                       </table>
@@ -181,7 +231,7 @@ function sendMail(fromEmail, toEmail, videoDoc, channel) {
                 </tr>
                 <tr height="16"></tr>
                 <tr>
-                  <table border="0" cellpadding="0" cellspacing="0">
+                  <td><table border="0" cellpadding="0" cellspacing="0">
                     <tbody>
                       <tr>
                         <td valign="top">
@@ -206,7 +256,7 @@ function sendMail(fromEmail, toEmail, videoDoc, channel) {
                         </td>
                       </tr>
                     </tbody>
-                  </table>
+                  </table></td>
                 </tr>
                 <tr>
                   <td>
@@ -221,7 +271,7 @@ function sendMail(fromEmail, toEmail, videoDoc, channel) {
               </tbody>
             </table>
           </td>
-          <td width="20"></td>
+          <td width="14"></td>
         </tr></tbody></table>
       </body>
     </html>
