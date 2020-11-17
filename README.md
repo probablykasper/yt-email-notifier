@@ -39,7 +39,6 @@ Download the `.dmg` file from the Releases section, and install like a normal ap
 ### Limitations
 
 YTEM is rough around the edges, and there are things that I could have fixed but didn't bother with:
-- Check that you entered valid values. It might not always be obvious what has gone wrong
 - It's not supported to add the same channel multiple times
 - Since this runs locally, it won't send you email notifications when your computer is off
 

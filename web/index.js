@@ -155,7 +155,11 @@ ws.onmessage = (e) => {
   } else if (type === 'error') {
     if (doneFunc) doneFunc()
     console.log('error from server:', data)
-    $('#error-modal pre').text(JSON.stringify(data, null, '  '))
+    if (typeof data === 'object') {
+      $('#error-modal pre').text(JSON.stringify(data, null, '  '))
+    } else {
+      $('#error-modal pre').text(data)
+    }
     $('#error-modal').addClass('is-active')
   }
 

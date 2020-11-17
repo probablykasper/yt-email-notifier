@@ -33,7 +33,7 @@
 
   <div id='error-modal' class="modal">
     <div class="modal-background"></div>
-    <div class="modal-content box px-6 py-5">
+    <div class="modal-content box px-6 py-5" style='width:calc(100% - 50px); max-width:850px'>
       <h1 class='is-size-4'><b>Error</b></h1>
       <pre class='mb-5'></pre>
       <div class='button' onclick="$('#error-modal').removeClass('is-active')">OK</div>
@@ -118,7 +118,7 @@
         <form id='setup-form'>
           <h1 class='title is-size-4'><b>Setup</b></h1>
           <label class='label'>API key</label>
-          <input id='api-key-input' class="input mb-5" value="{{apiKey}}" placeholder="AIzaSyAtvLCpmfVPTVNu1xxzBKcR3T28YWm0JXc" required>
+          <input id='api-key-input' class="input mb-5" value="{{apiKey}}" placeholder="AIzaSyAtvLCpmfQnddCakJmgX8dvHVjKZrFgUUC5" required>
           <label class='label'>From email</label>
           <input id='from-email-input' class="input mb-5" value="{{fromEmail}}" type='email' placeholder="noreply@ytem.example.com" required>
           <button type="submit" class="button is-success">Save</button>
