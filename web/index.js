@@ -28,9 +28,18 @@ $(document).ready(() => {
     }).catch(() => {
       console.log('err')
     })
-  // .then((response) => {
-  // })
-  // $('help-modal-content').load('/README.md')
+
+})
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const tag = e.target.nodeName
+    if (tag === 'INPUT' || tag === 'TEXTAREA') {
+      $(':focus').blur()
+    } else {
+      $('.modal.is-active').removeClass('is-active')
+    }
+  }
 })
 
 let doneFunc
@@ -82,6 +91,27 @@ function render(data) {
       })
     }
     $('#edit-email-modal').removeClass('is-active')
+    return false
+  })
+
+  let deleteInstanceIndex
+  $('.delete-email-button').click((e) => {
+    const instanceIndex = Number(e.target.dataset.instance)
+    deleteInstanceIndex = instanceIndex
+    const instance = data.instances[instanceIndex]
+    $('#delete-email-email').text(instance.email)
+    $('#delete-email-channels-count').text(instance.channels.length)
+    $('#delete-email-modal').addClass('is-active')
+  })
+  $('#delete-email-form').submit((e) => {
+    e.preventDefault()
+    if (typeof deleteInstanceIndex === 'number') {
+      window.a('deleteEmail', {
+        instanceIndex: deleteInstanceIndex,
+      })
+      console.log('AHYEP', deleteInstanceIndex)
+    }
+    $('#delete-email-modal').removeClass('is-active')
     return false
   })
 

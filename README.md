@@ -36,13 +36,12 @@ Download the `.dmg` file from the Releases section, and install like a normal ap
     3. Choose the starting time for what videos you'd like to receive email notifications. For example, if you choose 7 days ago, YTEM will notify you about all the videos uploaded since then (maximum the last 50 videos). You'll only be notified for videos uploaded only after the time you set
 6. That's all, hopefully it's worth it!
 
-### Limitations (readme)
+### Limitations
 
 YTEM is rough around the edges, and there are things that I could have fixed but didn't bother with:
 - Check that you entered valid values. It might not always be obvious what has gone wrong
 - It's not supported to add the same channel multiple times
-- Since this runs locally, it obviously won't send you email notifications when your computer is off
-- To delete an email, you'd have to go into the settings file, which can be found in `~/Library/Application Support/YouTube Email Notifier`.
+- Since this runs locally, it won't send you email notifications when your computer is off
 
 ### Menubar options
 
@@ -74,9 +73,11 @@ npm run build
 
 1. Update CHANGELOG.md and commit
 2. Bump the version number, commit and tag
-
     ```
     npm version <version>
     ```
-
-3. Create GitHub release with release notes
+3. Build the app
+    ```
+    npm run build
+    ```
+4. Create GitHub release with release notes

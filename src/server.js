@@ -329,6 +329,10 @@ wss.on('connection', async (ws) => {
         instance.minutesBetweenRefreshes = data.minutesBetweenRefreshes
         storeUpdate()
 
+      } else if (type === 'deleteEmail') {
+        store.instances.splice(data.instanceIndex, 1)
+        storeUpdate()
+
       } else if (type === 'addChannel') {
         const segments = data.channel.split('/')
         const channelIdSegment = segments.indexOf('channel') + 1
