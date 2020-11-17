@@ -334,7 +334,18 @@ wss.on('connection', async (ws) => {
         storeUpdate()
 
       } else if (type === 'addChannel') {
-        const segments = data.channel.split('/')
+        let channelUrl = data.channel
+        const isVideoURL = channelUrl.includes('youtube.com/watch')
+          || channelUrl.includes('youtu.be/')
+          || channelUrl.includes('youtube.com/v/')
+        if (isVideoURL) {
+          const url = 'https://www.youtube.com/oembed?url='+channelUrl+'&format=json'
+          const res = await fetch(url)
+          const json = await res.json()
+          if (json.error) throw json.error
+          channelUrl = json.author_url
+        }
+        const segments = channelUrl.split('/')
         const channelIdSegment = segments.indexOf('channel') + 1
         const usernameSegment = segments.indexOf('user') + 1
           || segments.indexOf('www.youtube.com') + 1
@@ -347,13 +358,13 @@ wss.on('connection', async (ws) => {
           const username = segments[usernameSegment]
           query.forUsername = username
         } else {
-          throw new Error(`Can't deal with url '${data.channel}'. The url should have /channel/ or /user/ in it.`)
+          throw new Error(`URL '${channelUrl}' not recognized.`)
         }
         const result = await fetchYT({
           url: 'https://www.googleapis.com/youtube/v3/channels',
           query: query,
         })
-        if (!result.items) throw new Error(`Channel '${data.channel}' not found`)
+        if (!result.items) throw new Error(`Channel not found for url '${channelUrl}'.\nYou could try a video URL`)
         const channelObject = result.items[0]
         store.instances[data.instance].channels.push({
           id: channelObject.id,
