@@ -73,7 +73,6 @@ async function refresh(instance) {
       const channel = instance.channels[i]
       const query = async () => {
         await new Promise(resolve => setTimeout(resolve, 1000))
-        logger.info(instance.email, channel.name)
         const uploads = await fetchYT({
           url: 'https://www.googleapis.com/youtube/v3/playlistItems',
           query: {
@@ -82,6 +81,7 @@ async function refresh(instance) {
             maxResults: 50,
           },
         })
+        const newVids = []
         for (let i = 0; i < uploads.items.length; i++) {
           // weird date situation:
           //  `snippet.publishedAt` is when the video was added to the uploads playlist.
@@ -121,13 +121,21 @@ async function refresh(instance) {
               if (video.snippet.thumbnails.maxres) {
                 doc.thumbnails.maxres = video.snippet.thumbnails.maxres.url
               }
-              logger.info(` - NEW VID ${doc._id}`)
+              const newVid = {id: doc._id}
               if (process.env.DONT_SEND_MAIL) {
-                logger.info('  - Not sending mail due to env variable DONT_SEND_MAIL')
+                newVid.DONT_SEND_MAIL = true
               } else {
                 await sendMail(store.fromEmail, instance.email, doc, channel)
               }
+              newVids.push(newVid)
             }
+          }
+        }
+        logger.info(instance.email, channel.name)
+        for (const newVid of newVids) {
+          logger.info(` - NEW VID ${newVid.id}`)
+          if (newVid.DONT_SEND_MAIL) {
+            logger.info('  - Not sending mail due to env variable DONT_SEND_MAIL')
           }
         }
       }
@@ -246,7 +254,7 @@ async function sendMail(fromEmail, toEmail, videoDoc, channel) {
   })
 }
 
-module.exports.restartIntervals = function() {
+module.exports.restartIntervals = async function() {
   for (let i = 0; i < intervals.length; i++) {
     clearInterval(intervals[i])
   }
@@ -255,7 +263,7 @@ module.exports.restartIntervals = function() {
   for (let i = 0; i < store.instances.length; i++) {
     const instance = store.instances[i]
     const intervalTime = instance.minutesBetweenRefreshes*1000*60
-    refresh(instance)
+    await refresh(instance)
     const interval = setInterval(refresh, intervalTime, instance)
     intervals.push(interval)
   }

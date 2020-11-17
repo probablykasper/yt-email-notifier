@@ -17,9 +17,12 @@
 
 Download the `.dmg` file from the Releases section, and install like a normal app.
 
-## Usage
+## Limitations
 
-### Setup (readme)
+- If your computer is turned off, YTEM can't send out notifications until you've turned it back on
+- YTEM can only send out notifications for a channel's 50 most recent videos. For example, if you quit YTEM and wait 60 days, you would miss 10 uploads from channels that upload daily.
+
+### Setup
 1. Once you open the app, it'll show up in the menubar. Click on the menubar icon and select `Settings`. This will open up the settings page in your browser
 2. Click the `Setup` button. Here you'll need to enter two things, and then click `Save`:
     - `API key`: This is for fetching channels/videos from the YouTube API. If something is unclear here, look it up or ask in a GitHub issue.
@@ -35,12 +38,6 @@ Download the `.dmg` file from the Releases section, and install like a normal ap
     2. Enter the channel URL. Because of YouTube API limitations, this URL needs to either have `/channel/` or `/user/` in it, other types won't work. If you got a wrong URL, try clicking on a video from the channel, and then go to the channel page from there
     3. Choose the starting time for what videos you'd like to receive email notifications. For example, if you choose 7 days ago, YTEM will notify you about all the videos uploaded since then (maximum the last 50 videos). You'll only be notified for videos uploaded only after the time you set
 6. That's all, hopefully it's worth it!
-
-### Limitations
-
-YTEM is rough around the edges, and there are things that I could have fixed but didn't bother with:
-- It's not supported to add the same channel multiple times
-- Since this runs locally, it won't send you email notifications when your computer is off
 
 ### Menubar options
 
