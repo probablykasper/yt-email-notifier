@@ -196,6 +196,10 @@ function sendMail(fromEmail, toEmail, videoDoc, channel) {
   const videoUrl = 'https://youtube.com/watch?v='+videoDoc._id
   const channelUrl = 'https://www.youtube.com/channel/'+channel.id
   const durationText = parseDuration(videoDoc.isoDuration)
+  const publishedAt = new Date(videoDoc.publishedAt)
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  const month = months[publishedAt.getMonth()]
+  const date = month+' '+publishedAt.getDate()+', '+publishedAt.getFullYear()
   const html = `
     <html>
       <head>
@@ -245,12 +249,12 @@ function sendMail(fromEmail, toEmail, videoDoc, channel) {
                             <tbody>
                               <tr>
                                 <td>
-                                  <a style="text-decoration:none;color:#212121;font-size:14px;font-family:Roboto,sans-serif" href="${htmlEncode(videoUrl)}" class="nonplayable">${htmlEncode(videoDoc.title)}</a>
+                                  <a style="text-decoration:none;color:#212121;font-size:14px;font-family:Roboto,sans-serif;display: block" href="${htmlEncode(videoUrl)}" class="nonplayable">${htmlEncode(videoDoc.title)}</a>
                                 </td>
                               </tr>
                               <tr>
-                                <td>
-                                  <a style="text-decoration:none;color:#757575;font-size:12px;font-family:Roboto,sans-serif" href="${htmlEncode(channelUrl)}">${htmlEncode(videoDoc.channelTitle)}</a>
+                                <td style="text-decoration:none;color:#757575;font-size:12px;font-family:Roboto,sans-serif">
+                                  <a style="text-decoration:none;color:#757575;font-size:12px;font-family:Roboto,sans-serif" href="${htmlEncode(channelUrl)}">${htmlEncode(videoDoc.channelTitle)}</a> • ${htmlEncode(date)}
                                 </td>
                               </tr>
                             </tbody>
