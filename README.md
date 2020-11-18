@@ -68,12 +68,13 @@ npm run build
 ### Publish new version
 
 1. Update CHANGELOG.md and commit
-2. Bump the version number, commit and tag
+2. Bump the version number
     ```
-    npm version <version>
+    npm version --no-git-tag <version>
     ```
-3. Build the app
+3. Commit and tag in format "v#.#.#"
+4. Build the app
     ```
     npm run build
     ```
-4. Create GitHub release with release notes
+5. Create GitHub release with release notes

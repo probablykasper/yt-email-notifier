@@ -36,7 +36,7 @@ module.exports.init = async function(options = {}) {
       checked: false,
       enabled: true,
       handler: async () => {
-        await server.open()
+        await server.open(options.port)
         opener('http://localhost:'+options.port)
       },
     },
