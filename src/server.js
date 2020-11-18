@@ -235,7 +235,9 @@ function sendMail(fromEmail, toEmail, videoDoc, channel) {
                     <tbody>
                       <tr>
                         <td valign="top">
-                          <img width="42" style="display:block;" src="${htmlEncode(channel.icon)}">
+                          <a style="text-decoration:none" href="${htmlEncode(videoUrl)}" class="nonplayable">
+                            <img width="42" style="display:block;" src="${htmlEncode(channel.icon)}">
+                          </a>
                         </td>
                         <td width="16"></td>
                         <td valign="top">
