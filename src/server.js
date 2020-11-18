@@ -270,9 +270,7 @@ function sendMail(fromEmail, toEmail, videoDoc, channel) {
                   </td>
                 </tr>
                 <tr>
-                  <td style="color:#757575;font-size:12px;font-family:Roboto,sans-serif">
-                    You received this email because you chose to get upload notifications from YouTube Email Notifier. If you don't want these emails anymore, open the settings of the YouTube Email Notifier app.
-                  </td>
+                  <td style="color:#757575;font-size:12px;font-family:Roboto,sans-serif">You received this email because you chose to get upload notifications from <a style="text-decoration:none;font-size:12px;font-family:Roboto,sans-serif" href="https://github.com/probablykasper/yt-email-notifier">YouTube Email Notifier</a>. If you don't want these emails anymore, open the settings in the app.</td>
                 </tr>
               </tbody>
             </table>
