@@ -27,7 +27,8 @@
       "category": "public.app-category.utilities",
       "icon": "assets/logo.png",
       "formats": [
-        "app"
+        "app",
+        "dmg"
       ],
       "customInfo": {}
     }
