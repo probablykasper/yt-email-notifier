@@ -1,6 +1,6 @@
 {
   "name": "youtube-email-notifier",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "Kasper Henningsen (https://kasper.space)",
   "main": "main.js",
   "bin": "main.js",
