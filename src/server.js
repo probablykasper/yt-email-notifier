@@ -95,7 +95,7 @@ async function refresh(instance) {
             maxResults: 50,
           },
         })
-        const isoDurations = []
+        const videoItems = []
         let idList = ''
         for (let i = 0; i < uploads.items.length; i++) {
           const video = uploads.items[i]
@@ -107,15 +107,16 @@ async function refresh(instance) {
           const videos = await fetchYT({
             url: 'https://www.googleapis.com/youtube/v3/videos',
             query: {
-              part: 'contentDetails',
+              part: 'contentDetails,liveStreamingDetails',
               id: idList.trimRight(','),
             },
           })
           for (const item of videos.items) {
-            isoDurations[item.id] = item.contentDetails.duration
+            videoItems[item.id] = item
           }
         }
         logger.info(instance.email, channel.name)
+        UploadsLoop:
         for (let i = uploads.items.length - 1; i >= 0; i--) {
           // weird date situation:
           //  `snippet.publishedAt` is when the video was added to the uploads playlist.
@@ -134,6 +135,10 @@ async function refresh(instance) {
           const publishedAt = new Date(video.contentDetails.videoPublishedAt)
           if (publishedAt.getTime() >= channel.fromTime) {
             const videoId = video.snippet.resourceId.videoId
+            const lsDetails = videoItems[videoId].liveStreamingDetails
+            if (lsDetails && lsDetails.scheduledStartTime) {
+              if (new Date(lsDetails.scheduledStartTime) > new Date()) continue UploadsLoop
+            }
             const videoDoc = await new Promise((resolve, reject) => {
               db.findOne({ _id: videoId }, (err, doc) => {
                 if (err) reject(err)
@@ -141,7 +146,7 @@ async function refresh(instance) {
               })
             })
             if (!videoDoc) {
-              const isoDuration = isoDurations[videoId]
+              const isoDuration = videoItems[videoId].contentDetails.duration
               if (!isoDuration) {
                 throw new Error(`isoDuration of video ${videoId} is ${isoDuration}`)
               }
