@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0 - 2020 Nov 19
+- Stopped sending notifications for upcoming premieres
+- Added publish date to emails
+- Made channel icon in emails clickable
+- Added YTEM link to emails
+
 ## 1.1.0 - 2020 Nov 18
 - Added button to delete emails
 - Added ability to add channels using video URLs
