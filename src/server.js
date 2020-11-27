@@ -398,37 +398,52 @@ wss.on('connection', async (ws) => {
         storeUpdate()
 
       } else if (type === 'addChannel') {
-        let channelUrl = data.channel
-        const isVideoURL = channelUrl.includes('youtube.com/watch')
-          || channelUrl.includes('youtu.be/')
-          || channelUrl.includes('youtube.com/v/')
-        if (isVideoURL) {
-          const url = 'https://www.youtube.com/oembed?url='+channelUrl+'&format=json'
-          const res = await fetch(url)
-          const json = await res.json()
-          if (json.error) throw json.error
-          channelUrl = json.author_url
+        const parseVideoId = function(url) {
+          if (url.includes('youtube.com/watch') && url.includes('?v=')) {
+            return url.split('?v=')[1].substring(0, 11)
+          } else if (url.includes('youtube.com/watch') && url.includes('&v=')) {
+            return url.split('&v=')[1].substring(0, 11)
+          } else if (url.includes('youtu.be/')) {
+            return url.split('youtu.be/')[1].substring(0, 11)
+          }
         }
-        const segments = channelUrl.split('/')
-        const channelIdSegment = segments.indexOf('channel') + 1
-        const usernameSegment = segments.indexOf('user') + 1
-          || segments.indexOf('www.youtube.com') + 1
-          || segments.indexOf('youtube.com') + 1
-        const query = { key: store.apiKey, part: 'contentDetails,id,snippet' }
-        if (channelIdSegment > 0) {
-          const channelId = segments[channelIdSegment]
-          query.id = channelId
-        } else if (usernameSegment >= 0) {
-          const username = segments[usernameSegment]
-          query.forUsername = username
+        const getChannelIdFromVideoId = async function(videoId) {
+          const result = await fetchYT({
+            url: 'https://youtube.googleapis.com/youtube/v3/videos',
+            query: { part: 'snippet', id: videoId },
+          })
+          if (!result.items || !result.items[0]) {
+            throw new Error(`No channel found for video ID '${videoId}':`, JSON.stringify(result))
+          }
+          return result.items[0].snippet.channelId
+        }
+        let providedUrl = data.channel
+        const videoId = parseVideoId(providedUrl)
+        let channelId, username
+        if (videoId) {
+          channelId = await getChannelIdFromVideoId(videoId)
         } else {
-          throw new Error(`URL '${channelUrl}' not recognized.`)
+          const segments = providedUrl.split('/')
+          const channelIdSegment = segments.indexOf('channel') + 1
+          const usernameSegment = segments.indexOf('user') + 1
+            || segments.indexOf('www.youtube.com') + 1
+            || segments.indexOf('youtube.com') + 1
+          if (channelIdSegment > 0) {
+            channelId = segments[channelIdSegment]
+          } else if (usernameSegment >= 0) {
+            username = segments[usernameSegment]
+          } else {
+            throw new Error(`URL '${providedUrl}' not recognized.`)
+          }
         }
+        const query = { part: 'contentDetails,id,snippet' }
+        if (channelId) query.id = channelId
+        else query.forUsername = username
         const result = await fetchYT({
           url: 'https://www.googleapis.com/youtube/v3/channels',
           query: query,
         })
-        if (!result.items) throw new Error(`Channel not found for url '${channelUrl}'.\nYou could try a video URL`)
+        if (!result.items) throw new Error(`Channel not found for url '${providedUrl}'.\nYou could try a video URL`)
         const channelObject = result.items[0]
         store.instances[data.instance].channels.push({
           id: channelObject.id,
