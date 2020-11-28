@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.0 - 2020 Nov 28
+- Added button for opening logs
+- Added setting for max concurrent requests
+- Added links for channels in settings page
+- Improved reliability of adding channels using video URLs
+- Fixed some settings requiring restart to take effect
+
 ## 1.2.0 - 2020 Nov 19
 - Stopped sending notifications for upcoming premieres
 - Added publish date to emails
