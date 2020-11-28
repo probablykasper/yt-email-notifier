@@ -67,7 +67,7 @@ npm run build
 
 ### Publish new version
 
-1. Update CHANGELOG.md and commit
+1. Update CHANGELOG.md
 2. Bump the version number
     ```
     npm version --no-git-tag <version>
