@@ -94,14 +94,14 @@ module.exports.restartIntervals = async function() {
   for (let i = 0; i < store.instances.length; i++) {
     const instance = store.instances[i]
     const intervalTime = instance.minutesBetweenRefreshes*1000*60
-    await refresh(instance, limit)
+    await refresh(instance)
     const interval = setInterval(refresh, intervalTime, instance)
     intervals.push(interval)
   }
 }
 module.exports.restartIntervals()
 
-async function refresh(instance, limit) {
+async function refresh(instance) {
   try {
     const channelCount = instance.channels.length
     const queries = []
