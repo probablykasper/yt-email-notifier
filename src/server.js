@@ -79,7 +79,25 @@ function parseDuration(isoDur) {
 
 const pLimit = require('p-limit')
 const limit = pLimit(5)
-async function refresh(instance) {
+module.exports.restartIntervals = async function() {
+  logger.info('Restarting intervals')
+  limit.clearQueue()
+  for (let i = 0; i < intervals.length; i++) {
+    clearInterval(intervals[i])
+  }
+  intervals = []
+
+  for (let i = 0; i < store.instances.length; i++) {
+    const instance = store.instances[i]
+    const intervalTime = instance.minutesBetweenRefreshes*1000*60
+    await refresh(instance, limit)
+    const interval = setInterval(refresh, intervalTime, instance)
+    intervals.push(interval)
+  }
+}
+module.exports.restartIntervals()
+
+async function refresh(instance, limit) {
   try {
     const channelCount = instance.channels.length
     const queries = []
@@ -310,22 +328,6 @@ function sendMail(fromEmail, toEmail, videoDoc, channel) {
   })
 }
 
-module.exports.restartIntervals = async function() {
-  for (let i = 0; i < intervals.length; i++) {
-    clearInterval(intervals[i])
-  }
-  intervals = []
-
-  for (let i = 0; i < store.instances.length; i++) {
-    const instance = store.instances[i]
-    const intervalTime = instance.minutesBetweenRefreshes*1000*60
-    await refresh(instance)
-    const interval = setInterval(refresh, intervalTime, instance)
-    intervals.push(interval)
-  }
-}
-module.exports.restartIntervals()
-
 const wss = new WebSocket.Server({ noServer: true })
 let connection = null
 let serverCloseTimeout = null
@@ -385,16 +387,21 @@ wss.on('connection', async (ws) => {
           minutesBetweenRefreshes: data.minutesBetweenRefreshes,
           channels: [],
         })
+        module.exports.restartIntervals()
         storeUpdate()
 
       } else if (type === 'editEmail') {
         const instance = store.instances[data.instanceIndex]
         instance.email = data.email
-        instance.minutesBetweenRefreshes = data.minutesBetweenRefreshes
+        if (instance.minutesBetweenRefreshes !== data.minutesBetweenRefreshes) {
+          instance.minutesBetweenRefreshes = data.minutesBetweenRefreshes
+          module.exports.restartIntervals()
+        }
         storeUpdate()
 
       } else if (type === 'deleteEmail') {
         store.instances.splice(data.instanceIndex, 1)
+        module.exports.restartIntervals()
         storeUpdate()
 
       } else if (type === 'addChannel') {
