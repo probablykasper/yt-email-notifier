@@ -53,11 +53,35 @@ function render(data) {
   const html = template(data)
   document.getElementById('app').innerHTML = html
 
+  const maxConcMin = $('#max-concurrent-requests-input').attr('min')
+  const maxConcMax = $('#max-concurrent-requests-input').attr('max')
+  function validateMaxConcReq(value) {
+    if (!Number.isInteger(Number(value))) return false
+    else if (value < Number(maxConcMin)) return false
+    else if (value > Number(maxConcMax)) return false
+    else return true
+  }
+  $('#max-concurrent-requests-input').keypress((e) => {
+    const charCode = (e.which) ? e.which : e.keyCode
+    // allow only numbers and special keys
+    if (charCode > 31 && (charCode < 48 || charCode > 57)) return false
+    // if number was pressed, validate new value
+    if (charCode >= 48 || charCode <= 57) {
+      const newValue = Number(e.target.value + e.key)
+      if (!validateMaxConcReq(newValue)) return false
+    }
+    return true
+  })
   $('#setup-form').submit((e) => {
     e.preventDefault()
+    const maxConcurrentRequests = Number($('#max-concurrent-requests-input').val())
+    if (!validateMaxConcReq(maxConcurrentRequests)) {
+      return alert(`Max concurrent requests must be an integer from ${maxConcMin} to ${maxConcMax}`)
+    }
     window.a('setup', {
       apiKey: $('#api-key-input').val(),
       fromEmail: $('#from-email-input').val(),
+      maxConcurrentRequests: maxConcurrentRequests,
     })
     return false
   })

@@ -36,10 +36,13 @@ let server
 let store
 if (fs.existsSync(paths.settings)) {
   store = JSON.parse(fs.readFileSync(paths.settings, 'utf8'))
+  // backwards compatibility for <=1.2.0
+  if (!store.maxConcurrentRequests) store.maxConcurrentRequests = 5
 } else {
   store = {
     apiKey: '',
     fromEmail: '',
+    maxConcurrentRequests: 5,
     unreadErrors: false,
     instances: [],
   }
@@ -78,10 +81,11 @@ function parseDuration(isoDur) {
 }
 
 const pLimit = require('p-limit')
-const limit = pLimit(5)
+let limit = pLimit(store.maxConcurrentRequests)
 module.exports.restartIntervals = async function() {
   logger.info('Restarting intervals')
   limit.clearQueue()
+  limit = pLimit(store.maxConcurrentRequests)
   for (let i = 0; i < intervals.length; i++) {
     clearInterval(intervals[i])
   }
@@ -379,6 +383,10 @@ wss.on('connection', async (ws) => {
       if (type === 'setup') {
         store.apiKey = data.apiKey
         store.fromEmail = data.fromEmail
+        if (store.maxConcurrentRequests !== data.maxConcurrentRequests) {
+          store.maxConcurrentRequests = data.maxConcurrentRequests
+          module.exports.restartIntervals()
+        }
         storeUpdate()
 
       } else if (type === 'newEmail') {

@@ -119,8 +119,16 @@
           <h1 class='title is-size-4'><b>Setup</b></h1>
           <label class='label'>API key</label>
           <input id='api-key-input' class="input mb-5" value="{{apiKey}}" placeholder="AIzaSyAtvLCpmfQnddCakJmgX8dvHVjKZrFgUUC5" required>
-          <label class='label'>From email</label>
-          <input id='from-email-input' class="input mb-5" value="{{fromEmail}}" type='email' placeholder="noreply@ytem.example.com" required>
+          <div class="field is-grouped is-grouped-centered">
+            <p class="control is-expanded">
+              <label class='label'>From email</label>
+              <input id='from-email-input' class="input mb-5" value="{{fromEmail}}" type='email' placeholder="noreply@ytem.example.com" required>
+            </p>
+            <div>
+              <label class='label'>Max concurrent requests</label>
+              <input id='max-concurrent-requests-input' class="input mb-5" value="{{maxConcurrentRequests}}" type='number' min="1" max="999" placeholder="5" required>
+            </div>
+          </div>
           <button type="submit" class="button is-success">Save</button>
           <div class="button" onclick="$('#setup-modal').removeClass('is-active')">Cancel</div>
         </form>
