@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.1 - 2020 Apr 14
+- Improved logging
+
 ## 1.3.0 - 2020 Nov 28
 - Added button for opening logs
 - Added setting for max concurrent requests
