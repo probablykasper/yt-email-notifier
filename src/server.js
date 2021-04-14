@@ -64,7 +64,7 @@ async function fetchYT(options) {
   })
   const json = await res.json()
   if (json.error) {
-    throw { message: 'API error', error: json.error, url: url }
+    throw { message: 'API error '+json.error.code, error: json.error, url: url }
   }
   return json
 }
