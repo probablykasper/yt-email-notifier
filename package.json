@@ -9,8 +9,8 @@
     "lint-fix": "eslint --ext .js --ignore-path .eslintignore . --fix",
     "start": "APP_ENV=dev node main.js",
     "start:prod": "node main.js",
-    "compile": "pkg . --target macos --output dist/youtube-email-notifier",
-    "build": "pkg . --target macos --output dist/youtube-email-notifier && embler",
+    "compile": "pkg . --target node12-macos-x64 --output dist/youtube-email-notifier",
+    "build": "pkg . --target node12-macos-x64 --output dist/youtube-email-notifier && embler",
     "pack": "embler"
   },
   "pkg": {
