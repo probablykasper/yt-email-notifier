@@ -43,9 +43,18 @@ module.exports.eventEmitter = new EventEmitter()
 module.exports.error = (...args) => {
   logger.error(...args)
   module.exports.eventEmitter.emit('new-error')
+  let notifText = ''
+  for (const arg of args) {
+    if (typeof arg === 'object' && arg.message) {
+      notifText += ' ' + arg.message
+    }
+    else {
+      notifText += ' ' + String(arg)
+    }
+  }
   displayNotification({
     title: 'YT Email Notifier Error',
-    text: args.join(' '),
+    text: notifText.trim(),
   })
 }
 module.exports.info = (...args) => {

@@ -59,9 +59,13 @@ async function fetchYT(options) {
     }
   }
   if (!options.headers) options.headers = {}
-  const res = await fetch(url, options)
+  const res = await fetch(url, options).catch((e) => {
+    throw { message: 'Network error '+e.code, error: e }
+  })
   const json = await res.json()
-  if (json.error) throw json.error
+  if (json.error) {
+    throw { message: 'API error', error: json.error, url: url }
+  }
   return json
 }
 
@@ -94,14 +98,15 @@ module.exports.restartIntervals = async function() {
   for (let i = 0; i < store.instances.length; i++) {
     const instance = store.instances[i]
     const intervalTime = instance.minutesBetweenRefreshes*1000*60
-    await refresh(instance)
-    const interval = setInterval(refresh, intervalTime, instance)
+    await refresh(instance, i)
+    const interval = setInterval(refresh, intervalTime, instance, i)
     intervals.push(interval)
   }
 }
 module.exports.restartIntervals()
 
-async function refresh(instance) {
+async function refresh(instance, instanceIndex) {
+  logger.info('Refreshing instance index', instanceIndex)
   try {
     const channelCount = instance.channels.length
     const queries = []
