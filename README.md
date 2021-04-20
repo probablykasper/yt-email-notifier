@@ -32,12 +32,12 @@ Download the `.dmg` file from the Releases section, and install like a normal ap
         4. Now you've got your API key. Optionally, you can restrict the key to only work on the `YouTube Data API v3` and only work for requests coming from your IP
     - `From email`: When you receive emails from YTEM, this will be the email you receive it from. If you own `example.com`, you could for instance put in `noreply@ytem.example.com`. If you don't own a domain name, you should be able to just use `example.com`. This doesn't actually have to be a real email, and you don't need to prove it's yours
 3. Whatever your `From email` is, go to your email app and create a filter that makes sure emails from that email don't end up in the spam filter. We're not doing much to prove our emails are legit, so they will likely get stuck in the spam filter (In fact, I've even noticed Google putting itself in the spam filter sometimes)
-4. Click `Save` and then `New email`. Enter your actual email, and how often you'd like YTEM to check for new videos. You may add multiple emails
+4. Click `Save` and then `New email`. Enter your actual email, and how often you'd like YTEM to check for new videos
 5. Now click `Add channel`, then
     1. Select the email you'd like to be notified on
     2. Enter the channel URL. Because of YouTube API limitations, this URL needs to either have `/channel/` or `/user/` in it, other types won't work. If you got a wrong URL, try clicking on a video from the channel, and then go to the channel page from there
     3. Choose the starting time for what videos you'd like to receive email notifications. For example, if you choose 7 days ago, YTEM will notify you about all the videos uploaded since then (maximum the last 50 videos). You'll only be notified for videos uploaded only after the time you set
-6. That's all, hopefully it's worth it!
+6. Done
 
 ### Menubar options
 

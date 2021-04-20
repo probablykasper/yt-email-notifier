@@ -1,6 +1,7 @@
 const http = require('http')
 const fs = require('fs')
 const path = require('path')
+const crypto = require('crypto')
 const connect = require('connect')
 const serveStatic = require('serve-static')
 const WebSocket = require('ws')
@@ -222,6 +223,15 @@ function htmlEncode(str) {
     .replace('"', '&quot;')
 }
 
+function generateRandomReference() {
+  const randomId = [2, 2, 2, 6].reduce(
+    // crux to generate UUID-like random strings
+    (prev, len) => prev + '-' + crypto.randomBytes(len).toString('hex'),
+    crypto.randomBytes(4).toString('hex'),
+  )
+  return '<'+randomId+'@random-id-to-prevent-threading.example.com>'
+}
+
 function sendMail(fromEmail, toEmail, videoDoc, channel) {
   const emailTitle = videoDoc.channelTitle+' just uploaded a video'
   let thumbnailUrl = videoDoc.thumbnails.high
@@ -320,6 +330,9 @@ function sendMail(fromEmail, toEmail, videoDoc, channel) {
       to: toEmail,
       subject: emailTitle,
       html: html,
+      headers: {
+        References: generateRandomReference(), // prevent email threading
+      },
     }, (err, info) => {
       if (err) {
         logger.error(`  ${videoDoc._id} Mail error sending:`, err)
