@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.2 - 2020 Apr 20
+- Prevent email threading
+
 ## 1.3.1 - 2020 Apr 14
 - Improved logging
 
